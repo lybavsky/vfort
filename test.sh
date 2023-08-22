@@ -27,7 +27,7 @@ function err() {
 
 echo "Disable powersave mode when closing laptop"
 sed -i /etc/systemd/logind.conf -e '/HandleLidSwitch/d'
-sed -i /etc/systemd/logind.conf -e '$a/HandleLidSwitch=ignore'
+sed -i /etc/systemd/logind.conf -e '$aHandleLidSwitch=ignore'
 systemctl restart systemd-logind.service
 
 echo "Start to install virtualbox and additional soft"
