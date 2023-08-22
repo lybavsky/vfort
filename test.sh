@@ -11,5 +11,6 @@ function err() {
 
 
 echo "Disable powersave mode when closing laptop"
-sed -i /etc/systemd/logind.conf -e '/HandleLidSwitch/d;$a/HandleLidSwitch=ignore'
+sed -i /etc/systemd/logind.conf -e '/HandleLidSwitch/d'
+sed -i /etc/systemd/logind.conf -e '$a/HandleLidSwitch=ignore'
 systemctl restart systemd-logind.service
