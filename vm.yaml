@@ -8,6 +8,6 @@ vms:
 
   secure:
     disk: 
-      size: 20
+      size: 10
       source: file
 
