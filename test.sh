@@ -36,8 +36,13 @@ apt install -y bridge-utils xinit virtualbox virtualbox-ext-pack virtualbox-gues
 
 pip3 install yq
 
-echo "Download windows 10 iso"
-wget -O /win.iso "$WINURL"
+
+if [ ! -f "/win.iso" ]; then
+	echo "Download windows 10 iso"
+	wget -O /win.iso "$WINURL"
+else
+	echo "/win.iso already presented"
+fi
 
 
 echo "Make VM directories"
