@@ -11,9 +11,5 @@ function err() {
 
 
 echo "Disable powersave mode when closing laptop"
-
-mkdir -p /etc/NetworkManager/conf.d/
-echo "[connection]
-wifi.powersave = 2" > /etc/NetworkManager/conf.d/default-wifi-powersave-on.conf
-
-systemctl restart NetworkManager
+sed -i /etc/systemd/logind.conf -e '/HandleLidSwitch/d;$a/HandleLidSwitch=ignore'
+systemctl restart systemd-logind.service
