@@ -120,10 +120,55 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
   		echo ",${disk_size}G" | sfdisk -X gpt $disk_source -a --force
   		partition="$( fdisk -x -lu $disk_source -o Device | tail -n1 )"
   		partprobe $disk_source
+  		#also can use echo 1 > /sys/block/sda/device/rescan
 
 			vboxmanage internalcommands createrawvmdk -filename $img_name -rawdisk $partition
 		fi
   fi
+
+
+	if [ "$( vboxmanage showvminfo $vm_name >/dev/null 2>&1; echo $? )" -ne 0 ]; then
+		echo "Creating VM $vm_name"
+ 		vboxmanage createvm --name $vm_name --ostype Windows10_64 --register --basefolder $VDIR
+ 	else 
+ 		echo "VM $vm_name already exists"
+ 	fi
+
+  memory_mb=`getval $jcfg ".memory_mb"`
+  vram_mb=`getval $jcfg ".vram_mb"`
+  echo "ram: $memory_mb, vram: $vram_mb"
+
+
+  vboxmanage modifyvm $vm_name --ioapic on
+  vboxmanage modifyvm $vm_name --memory $memory_mb --vram $vram_mb
+  vboxmanage modifyvm $vm_name --graphicscontroller vboxsvga
+  VBoxManage storagectl $vm_name --name "SATA Controller" --add sata --controller IntelAhci
+  VBoxManage storageattach $vm_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium  $img_name
+  
+  VBoxManage modifyvm $vm_name --mouse ps2
+  VBoxManage modifyvm $vm_name --firmware bios
+
+  #TODO: we are here
+  VBoxManage modifyvm $vm_name --vrdeproperty VNCPassword=VNCPASS --vrdeport 3390
+  
+  VBoxManage modifyvm $vm_name --cpuhotplug on
+  VBoxManage modifyvm $vm_name --cpus 1
+  
+  VBoxManage unattended install $vm_name --iso /root/win10.iso --user lybavsky --password VNCPASS
+  VBoxManage modifyvm $vm_name --boot1 dvd --boot2 disk --boot3 none --boot4 none 
+  
+  VBoxManage storagectl $vm_name --name "IDE Controller" --add ide --controller PIIX4       
+  VBoxManage storageattach $vm_name --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium /usr/share/virtualbox/VBoxGuestAdditions.iso
+  
+  vboxmanage hostonlyif create
+  vboxmanage modifyvm $vm_name --nic1 hostonly --hostonlyadapter1 vboxnet2
+  vboxmanage dhcpserver add --interface=vboxnet2 --ip 192.168.57.1 --netmask 255.255.255.0 --lowerip 192.168.57.100  --upperip 192.168.57.200
+  vboxmanage dhcpserver modify --ifname vboxnet2 --enable
+  
+  VBoxManage modifyvm $vm_name --audio alsa
+  VBoxManage modifyvm $vm_name --audioout on --audiocontroller hda 
+  
+  VBoxManage modifyvm $vm_name --usb on --usbehci on --usbxhci on
 
 
 done

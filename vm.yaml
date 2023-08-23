@@ -5,6 +5,9 @@ vms:
       size: 40
       #disk source: file or /dev/sdX
       source: /dev/sda
+      
+    memory_mb: 4096
+    vram_mb: 256
 
   secure:
     disk: 
