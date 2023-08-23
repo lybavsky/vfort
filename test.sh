@@ -71,7 +71,7 @@ else
 fi
 
 
-echo "Make VM directories"
+echo "Make VM directory $WDIR"
 mkdir -p $WDIR
 
 CFG_URL="$URL/vm.yaml"
@@ -104,6 +104,7 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
   echo "Will create disk"
   if [ "$disk_source" == "file" ]; then
   	img_name="$VDIR/disk.vdi"
+  	echo "Disk name $img_name"
   	if [ -f $img_name ]; then
 			echo "Image already exists"
 		else
@@ -111,12 +112,14 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
 		fi
   else
   	img_name="$VDIR/disk.vmdk"
+  	echo "Disk name $img_name"
 
 		if [ -f $img_name ]; then
 			echo "Disk image already exists"
 		else
   		echo ",${disk_size}G" | sfdisk -X gpt $disk_source -a --force
-  		partition="$( fdisk -x -lu /dev/sda -o Device | tail -n1 )"
+  		partition="$( fdisk -x -lu $disk_source -o Device | tail -n1 )"
+  		partprobe $disk_source
 
 			vboxmanage internalcommands createrawvmdk -filename $img_name -rawdisk $partition
 		fi
