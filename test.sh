@@ -83,7 +83,7 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
 	vm_name=`getkey $jcfg`
 	echo "Processing VM $vm_name"
 
-	VDIR="$WDIR/$vm_name"
+	VDIR="${WDIR}/${vm_name}"
 	mkdir -p $VDIR
 
   disk_source=`getval $jcfg ".disk.source"`
