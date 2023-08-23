@@ -1,5 +1,7 @@
 # vfort
 
+Assume that ubuntu installed on EFI
+
 TODO: 
 - dialog if use default config 
 - iterate over yaml file 

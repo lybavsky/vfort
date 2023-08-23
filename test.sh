@@ -7,7 +7,6 @@ URL="https://raw.githubusercontent.com/lybavsky/vfort/develop"
 WINURL="https://software.download.prss.microsoft.com/dbazure/Win10_22H2_Russian_x64v1.iso?t=c6925b7f-4981-424a-b2ac-2a1b2835b05b&e=1692794388&h=d1e8e5b5aac2b4ec885ac52c61cba5c4ab6dc4bd96d42c43444807e50a579d9c"
 WDIR="/srv/vm"
 
-
 catch() {
   echo "Got some error on line $LINENO"
   exit 0
@@ -80,13 +79,18 @@ CFG_URL="$URL/vm.yaml"
 curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
 	echo "Got $jcfg";
 
+
 	vm_name=`getkey $jcfg`
 	echo "Processing VM $vm_name"
+
+	VDIR="$WDIR/$vm_name"
+	mkdir -p $VDIR
 
   disk_source=`getval $jcfg ".disk.source"`
   disk_size=`getval $jcfg ".disk.size"`
   echo "disk source: $disk_source, size $disk_size"
 
+	echo "Will check disk size"
   if [ "$disk_source" == "file" ]; then
   		free_space="`df -BG /srv/vm | awk '{ if (NR!=1) {print substr($4,0,length($4)-1)} }'`"
   else
@@ -96,5 +100,15 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
   if [ $free_space -le $disk_size ]; then
   	err "Not enough disk space for $vm_name: requested $disk_size, available only $free_space"
   fi
+
+  echo "Will create disk"
+  if [ "$disk_source" == "file" ]; then
+
+  else
+  	echo ",${disk_size}G" | sfdisk -X gpt /dev/sda -a --force
+		vboxmanage internalcommands createrawvmdk -filename $VDIR/disk.vmdk -rawdisk /dev/sda4
+
+  fi
+
 
 done
