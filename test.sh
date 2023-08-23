@@ -103,11 +103,23 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
 
   echo "Will create disk"
   if [ "$disk_source" == "file" ]; then
-
+  	img_name="$VDIR/disk.vdi"
+  	if [ -f $img_name ]; then
+			echo "Image already exists"
+		else
+			vboxmanage createhd --filename $img_name --size $(( $disk_size * 1024 )) --format VDI
+		fi
   else
-  	echo ",${disk_size}G" | sfdisk -X gpt /dev/sda -a --force
-		vboxmanage internalcommands createrawvmdk -filename $VDIR/disk.vmdk -rawdisk /dev/sda4
+  	img_name="$VDIR/disk.vmdk"
 
+		if [ -f $img_name ]; then
+			echo "Disk image already exists"
+		else
+  		echo ",${disk_size}G" | sfdisk -X gpt $disk_source -a --force
+  		partition="$( fdisk -x -lu /dev/sda -o Device | tail -n1 )"
+
+			vboxmanage internalcommands createrawvmdk -filename $img_name -rawdisk $partition
+		fi
   fi
 
 
