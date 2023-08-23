@@ -32,6 +32,12 @@ function getval() {
 	echo "${json[@]}" | jq -r ".value$val"
 }
 
+function getkey() {
+	json=$1
+
+	echo "${json[@]}" | jq -r ".key"
+}
+
 echo "Disable powersave mode when closing laptop"
 sed -i /etc/systemd/logind.conf -e '/HandleLidSwitch/d'
 sed -i /etc/systemd/logind.conf -e '$aHandleLidSwitch=ignore'
@@ -75,7 +81,18 @@ CFG_URL="$URL/vm.yaml"
 curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
 	echo "Got $jcfg";
 
+	vm_name=`getkey $jcfg`
+	echo "Processing VM $vm_name"
+
   disk_source=`getval $jcfg ".disk.source"`
   disk_size=`getval $jcfg ".disk.size"`
   echo "disk source: $disk_source, size $disk_size"
+
+  if [ "$disk_source" == "file" ]; then
+  		free_space="`df -BG /srv/vm | awk '{ if (NR!=1) {print substr($4,0,length($4)-1)} }'`"
+  else
+  		free_space=""
+  fi
+  echo "free space: $free_space"
+
 done
