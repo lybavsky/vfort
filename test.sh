@@ -17,7 +17,6 @@ trap "catch" ERR
 
 
 function err() {
-	shift
 	msg="$@"
 	echo "Error: $msg"
 	exit 1
@@ -94,5 +93,8 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
   		free_space="`sfdisk --list-free -q $disk_source | cut -d ' ' -f4 | sed -e '1d;s/\.[0-9]*G//g'`"
   fi
   echo "free space: $free_space"
+  if [ $free_space -le $disk_size ]; then
+  	err "Not enough disk space for $vm_name: requested $disk_size, available only $free_space"
+  fi
 
 done
