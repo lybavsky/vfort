@@ -4,8 +4,11 @@ Assume that ubuntu installed on EFI
 
 TODO: 
 - dialog if use default config 
-- iterate over yaml file 
-- check free space on disk or on partition
-- create vm
-- create vm unit
+- get all used vty list 
 - create switch wm service
+- set vol service
+- show popup - name of vm
+- auto set graphics
+- delete vm functional
+- put vboxnet to some netns
+- think how to connect vboxnet to vpn services
