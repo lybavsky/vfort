@@ -89,11 +89,19 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
   user_name=`getval $jcfg ".user.name"`
   user_pwd=`getval $jcfg ".user.pwd"`
 
-  ip_gw=`getval $jcfg ".ip.gw"`
-  ip_dhcpa=`getval $jcfg ".ip.dhcpa"`
-  ip_mask=`getval $jcfg ".ip.mask"`
-  ip_lower=`getval $jcfg ".ip.lower"`
-  ip_upper=`getval $jcfg ".ip.upper"`
+  ip_net=`getval $jcfg ".net"`
+
+  echo "Validate ip address"
+  ipstr=${ip_net%%\/[0-9]*}
+  cidrstr=${ip_net##*\/}
+
+  ip_gw="$( get_nth_ip $ipstr $cidrstr 1 )"
+  ip_dhcp="$( get_nth_ip $ipstr $cidrstr 2 )"
+  ip_first="$( get_nth_ip $ipstr $cidrstr 3 )"
+  ip_last="$( get_nth_ip $ipstr $cidrstr -2 )"
+  ip_mask="$( get_long_mask $cidrstr )"
+
+	#TODO: Here we heed to validate ip addresses (if already used, if not net address)
 
 	vt_num=`getval $jcfg ".vt"`
 
@@ -220,7 +228,8 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	hostif="$( vboxmanage hostonlyif create 2>/dev/null | tail -n1 | awk '{print substr($2,2,length($2)-2)}' )"
 	
 	vboxmanage hostonlyif ipconfig vboxnet0 --ip $ip_gw --netmask $ip_mask
-  vboxmanage dhcpserver add --interface=$hostif --server-ip $ip_dhcpa --netmask $ip_mask --lowerip $ip_lower  --upperip $ip_upper --enable --set-opt=3 $ip_gw
+
+  vboxmanage dhcpserver add --interface=$hostif --server-ip $ip_dhcp --netmask $ip_mask --lowerip $ip_first  --upperip $ip_last --enable --set-opt=3 $ip_gw
 
   $vmm --nic1 hostonly --hostonlyadapter1 $hostif
 
