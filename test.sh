@@ -231,10 +231,13 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
 	echo "Umount win iso"
 	umount_re $vm_name "$img_name"
 
+	echo "Add network adapter"
+	hostif="$( vboxmanage hostonlyif create 2>/dev/null | tail -n1 | awk '{print substr($2,2,length($2)-2)}' )"
+  vboxmanage dhcpserver remove --ifname $hostif 
+
+  vboxmanage modifyvm $vm_name --nic1 hostonly --hostonlyadapter1 $hostif
+
 	#TODO: Do it after install
-  #
-  # vboxmanage hostonlyif create
-  # vboxmanage modifyvm $vm_name --nic1 hostonly --hostonlyadapter1 vboxnet2
   # vboxmanage dhcpserver add --interface=vboxnet2 --ip 192.168.57.1 --netmask 255.255.255.0 --lowerip 192.168.57.100  --upperip 192.168.57.200
   # vboxmanage dhcpserver modify --ifname vboxnet2 --enable
   
