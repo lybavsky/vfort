@@ -276,9 +276,17 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
 	vt_num=`getval $jcfg ".vt"`
 	echo "xinit $VDIR/vbox.sh  -- :1 vt${vt_num} -nolisten tcp -keeptty" > $VDIR/start.sh
 	chmod +x $VDIR/start.sh
-	
-	#TODO: Here - to put vbox sdl
+
+
+	echo "/usr/bin/vboxsdl --startvm ${vm_name} --fullscreen --vrdp ${vnc_port} --nofstoggle --nohostkey -fullscreenresize -noresize --termacpi " > $VDIR/vbox.sh
+	chmod +x $VDIR/vbox.sh
 	
 	systemctl enable win@${vm_name}.service
+
+	#TODO: set resolution - should exec only on running machine
+	VBoxManage controlvm ${vm_name} setvideomodehint 1366 768 32
+
+  VBoxManage setextradata ${vm_name} "CustomVideoMode1" "1366x786x24"
+	VBoxManage setextradata global GUI/MaxGuestResolution 1366x786
 
 done
