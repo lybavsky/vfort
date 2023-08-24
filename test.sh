@@ -197,8 +197,19 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
   user_pwd=`getval $jcfg ".user.pwd"`
 
   echo vboxmanage unattended install $vm_name --iso $ISOF --user $user_name --password $user_pwd
-  vboxmanage unattended install $vm_name --iso $ISOF --user $user_name --password $user_pwd
+  vboxmanage unattended install $vm_name --iso $ISOF --user $user_name --password $user_pwd  --install-additions #--start-vm=headless
   vboxmanage modifyvm $vm_name --boot1 dvd --boot2 disk --boot3 none --boot4 none
+  vboxmanage startvm $vm_name --type headless
+
+	myip="$( ip ro get 8.8.8.8 | awk '{print $7}' )"
+  dialog --msgbox "You need to connect via RDP ${myip}:${rde_port} as ${rde_user}:${rde_pwd} to VM and press continue to boot from iso" 10 0
+
+  while [ "$( vboxmanage showvminfo  common | grep "Unattended.*\.viso" -q; echo $? )" -ne 0 ]; do
+  	echo "$(date): Unattended still works, waiting..."
+  	sleep 60
+  done
+
+
 
 	#TODO: Do it after install
   # vboxmanage modifyvm $vm_name --boot1 dvd --boot2 disk --boot3 none --boot4 none 
