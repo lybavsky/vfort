@@ -38,6 +38,19 @@ function getkey() {
 	echo "${json[@]}" | jq -r ".key"
 }
 
+function umount_re() {
+	vmname=$1
+	re=$2
+
+	vboxmanage showvminfo $vmname | grep "$re" | while read l; do 
+  	ctrl="${l%% \(*}"
+  	num="${l%%)*}"
+  	dev="${num##*, }"
+  	port="${num##* (}"; port="${port%%, *}"
+  	vboxmanage storageattach $vmname --storagectl "$ctrl" --port $port --device $dev --type hdd --medium none
+  done
+}
+
 echo "Disable powersave mode when closing laptop"
 sed -i /etc/systemd/logind.conf -e '/HandleLidSwitch/d'
 sed -i /etc/systemd/logind.conf -e '$aHandleLidSwitch=ignore'
@@ -213,14 +226,10 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
   vboxmanage modifyvm $vm_name --boot1 disk --boot2 none --boot3 none --boot4 none 
 
 	echo "Umount unattended"
-  vboxmanage showvminfo common | grep "Unattended" | while read l; do 
-  	ctrl="${l%% \(*}"
-  	num="${l%%)*}"
-  	dev="${num##*, }"
-  	port="${num##* (}"; port="${port%%, *}"
-  	vboxmanage storageattach  common --storagectl "$ctrl" --port $port --device $dev --type hdd --medium none
-  done
+	umount_re $vm_name "Unattended"
 
+	echo "Umount win iso"
+	umount_re $vm_name "$img_name"
 
 	#TODO: Do it after install
   #
