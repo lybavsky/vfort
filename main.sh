@@ -95,13 +95,20 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
   ipstr=${ip_net%%\/[0-9]*}
   cidrstr=${ip_net##*\/}
 
+  ip_net="$( get_net $ipstr $cidrstr )"
   ip_gw="$( get_nth_ip $ipstr $cidrstr 1 )"
   ip_dhcp="$( get_nth_ip $ipstr $cidrstr 2 )"
   ip_first="$( get_nth_ip $ipstr $cidrstr 3 )"
   ip_last="$( get_nth_ip $ipstr $cidrstr -2 )"
   ip_mask="$( get_long_mask $cidrstr )"
 
-	#TODO: Here we heed to validate ip addresses (if already used, if not net address)
+  if [ "$ip_net" != "$ipstr" ]; then
+  	err "Net parameter should be net addressm instead got $ipstr"
+	elif [ "$cidrstr" -gt 29 ]; then
+  	err "Mask should be 29 and less"
+  fi
+
+	#TODO: Here we heed to validate ip addresses (if already used)
 
 	vt_num=`getval $jcfg ".vt"`
 
