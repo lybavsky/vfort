@@ -12,3 +12,6 @@ TODO:
 - delete vm functional
 - put vboxnet to some netns
 - think how to connect vboxnet to vpn services
+- dialogs to put usb filter/allow all usb to some vm
+- fix vnc unavailability
+- disable vnc if no password provided

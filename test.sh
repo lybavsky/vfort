@@ -76,7 +76,7 @@ sed -i /etc/systemd/logind.conf -e '$aHandleLidSwitch=ignore'
 systemctl restart systemd-logind.service
 
 echo "Check packages to install"
-pkgs_to_install=(bridge-utils xinit virtualbox virtualbox-ext-pack virtualbox-guest-utils virtualbox-guest-additions-iso dialog python3 python3-pip jq)
+pkgs_to_install=(bridge-utils xinit virtualbox virtualbox-ext-pack virtualbox-guest-utils virtualbox-guest-additions-iso dialog python3 python3-pip jq sm)
 pkgs_will_install=()
 pkgs_installed=( $(dpkg -l | awk '/^ii/{print $2}' ) )
 for pkg_to_install in ${pkgs_to_install[@]}; do
