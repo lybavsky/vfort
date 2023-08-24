@@ -202,19 +202,27 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
   vboxmanage startvm $vm_name --type headless
 
 	myip="$( ip ro get 8.8.8.8 | awk '{print $7}' )"
-  dialog --msgbox "You need to connect via RDP ${myip}:${rde_port} as ${rde_user}:${rde_pwd} to VM and press continue to boot from iso" 10 0
+  dialog --msgbox "You need to connect via RDP ${myip}:${rde_port} as ${rde_user}:${rde_pwd} to VM and press continue to boot from iso, when windows will be installed, shutdown the vm " 10 0
 
-  while [ "$( vboxmanage showvminfo  common | grep "Unattended.*\.viso" -q; echo $? )" -ne 0 ]; do
-  	echo "$(date): Unattended still works, waiting..."
-  	sleep 60
+
+	while [ "$( vboxmanage showvminfo $vm_name | grep "State:.*running" -q )" -ne 0 ]; done
+		echo "Waiting for unattended process finish.."
+		sleep 60
+	done
+
+  vboxmanage modifyvm $vm_name --boot1 disk --boot2 none --boot3 none --boot4 none 
+
+	echo "Umount unattended"
+  vboxmanage showvminfo common | grep "Unattended" | while read l; do 
+  	ctrl="${l%% \(*}"
+  	num="${l%%)*}"
+  	dev="${num##*, }"
+  	port="${num##* (}"; port="${port%%, *}"
+  	vboxmanage storageattach  common --storagectl "$ctrl" --port $port --device $dev --type hdd --medium none
   done
 
 
-
 	#TODO: Do it after install
-  # vboxmanage modifyvm $vm_name --boot1 dvd --boot2 disk --boot3 none --boot4 none 
-  # vboxmanage storagectl $vm_name --name "IDE Controller" --add ide --controller PIIX4       
-  # vboxmanage storageattach $vm_name --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium /usr/share/virtualbox/VBoxGuestAdditions.iso
   #
   # vboxmanage hostonlyif create
   # vboxmanage modifyvm $vm_name --nic1 hostonly --hostonlyadapter1 vboxnet2
