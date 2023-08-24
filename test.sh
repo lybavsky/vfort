@@ -51,6 +51,27 @@ function umount_re() {
   done
 }
 
+if [ ! -f "/etc/systemd/system/win@.service" ]; then
+	echo "Creating systemd unit"
+	cat > /etc/systemd/system/win@.service <<EOF
+[Unit]
+Description=Start and shutdown win
+Requires=systemd-modules-load.service
+Wants=network.target multi-user.target
+After=systemd-modules-load.service network.target multi-user.target
+
+[Service]
+Type=simple
+ExecStart=bash -c $WDIR/%i/start.sh
+ExecStop=/usr/bin/VBoxManage controlvm %i acpipowerbutton
+
+[Install]
+WantedBy=getty.target
+EOF
+
+	systemctl daemon-reload
+fi
+
 echo "Disable powersave mode when closing laptop"
 sed -i /etc/systemd/logind.conf -e '/HandleLidSwitch/d'
 sed -i /etc/systemd/logind.conf -e '$aHandleLidSwitch=ignore'
@@ -85,6 +106,10 @@ else
 	echo "$ISOF already presented"
 fi
 
+echo "Fix virtualbox net ranges"
+mkdir -p /etc/vbox
+echo "* 0.0.0.0/0 ::/0" > /etc/vbox/networks.conf 
+systemctl restart virtualbox
 
 echo "Make VM directory $WDIR"
 mkdir -p $WDIR
@@ -233,13 +258,27 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
 
 	echo "Add network adapter"
 	hostif="$( vboxmanage hostonlyif create 2>/dev/null | tail -n1 | awk '{print substr($2,2,length($2)-2)}' )"
-  vboxmanage dhcpserver remove --ifname $hostif 
+	#vboxmanage list hostonlyifs
+	
+  ip_gw=`getval $jcfg ".ip.gw"`
+  ip_dhcpa=`getval $jcfg ".ip.dhcpa"`
+  ip_mask=`getval $jcfg ".ip.mask"`
+  ip_lower=`getval $jcfg ".ip.lower"`
+  ip_upper=`getval $jcfg ".ip.upper"`
+	vboxmanage hostonlyif ipconfig vboxnet0 --ip $ip_gw --netmask $ip_mask
+  vboxmanage dhcpserver add --interface=$hostif --server-ip $ip_dhcpa --netmask $ip_mask --lowerip $ip_lower  --upperip $ip_upper --enable --set-opt=3 $ip_gw
 
   vboxmanage modifyvm $vm_name --nic1 hostonly --hostonlyadapter1 $hostif
 
-	#TODO: Do it after install
-  # vboxmanage dhcpserver add --interface=vboxnet2 --ip 192.168.57.1 --netmask 255.255.255.0 --lowerip 192.168.57.100  --upperip 192.168.57.200
-  # vboxmanage dhcpserver modify --ifname vboxnet2 --enable
-  
+
+  echo "Start to configure init scripts"
+
+	vt_num=`getval $jcfg ".vt"`
+	echo "xinit $VDIR/vbox.sh  -- :1 vt${vt_num} -nolisten tcp -keeptty" > $VDIR/start.sh
+	chmod +x $VDIR/start.sh
+	
+	#TODO: Here - to put vbox sdl
+	
+	systemctl enable win@${vm_name}.service
 
 done
