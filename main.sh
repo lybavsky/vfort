@@ -2,12 +2,15 @@
 set -e 
 set -o pipefail 
 
+
 WINURL="https://software.download.prss.microsoft.com/dbazure/Win10_22H2_Russian_x64v1.iso?t=c6925b7f-4981-424a-b2ac-2a1b2835b05b&e=1692794388&h=d1e8e5b5aac2b4ec885ac52c61cba5c4ab6dc4bd96d42c43444807e50a579d9c"
 WDIR="/srv/vm"
 
 CDIR="`dirname $( readlink -f $0 )`"
 
 ISOF="/win.iso"
+
+[ "$EUID" -ne 0 ] && err "Script sould be started as root"
 
 source ${CDIR}/functions.sh
 
@@ -93,6 +96,7 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
   ip_upper=`getval $jcfg ".ip.upper"`
 
 	vt_num=`getval $jcfg ".vt"`
+
 
 	vmm="vboxmanage modifyvm $vm_name"
 

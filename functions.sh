@@ -12,7 +12,6 @@ function err() {
 	exit 1
 }
 
-[ "$EUID" -ne 0 ] && err "Script sould be started as root"
 
 function getval() {
 	json=$1
@@ -40,3 +39,23 @@ function umount_re() {
   done
 }
 
+
+function ip_to_dec() {
+  str=$1
+
+  IFS="." read -a TTT <<< "$str"
+
+  echo "processing (${TTT[@]}) ${#TTT[@]}"
+}
+
+function parse_ip() {
+  str=$1
+
+  ipstr=${str%%\/[0-9]*}
+  cidrstr=${str##*\/}
+
+  ip_to_dec $ipstr
+
+}
+
+parse_ip 192.168.0.0/24
