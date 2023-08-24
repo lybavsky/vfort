@@ -7,6 +7,8 @@ URL="https://raw.githubusercontent.com/lybavsky/vfort/develop"
 WINURL="https://software.download.prss.microsoft.com/dbazure/Win10_22H2_Russian_x64v1.iso?t=c6925b7f-4981-424a-b2ac-2a1b2835b05b&e=1692794388&h=d1e8e5b5aac2b4ec885ac52c61cba5c4ab6dc4bd96d42c43444807e50a579d9c"
 WDIR="/srv/vm"
 
+ISOF="/win.iso"
+
 catch() {
   echo "Got some error on line $LINENO"
   exit 0
@@ -63,11 +65,11 @@ fi
 pip3 install yq
 
 
-if [ ! -f "/win.iso" ]; then
+if [ ! -f "$ISOF" ]; then
 	echo "Download windows 10 iso"
-	wget -O /win.iso "$WINURL"
+	wget -O $ISOF "$WINURL"
 else
-	echo "/win.iso already presented"
+	echo "$ISOF already presented"
 fi
 
 
@@ -139,36 +141,52 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
   echo "ram: $memory_mb, vram: $vram_mb"
 
 
+	echo "Configure VM memory, cpu and disk"
   vboxmanage modifyvm $vm_name --ioapic on
   vboxmanage modifyvm $vm_name --memory $memory_mb --vram $vram_mb
   vboxmanage modifyvm $vm_name --graphicscontroller vboxsvga
-  VBoxManage storagectl $vm_name --name "SATA Controller" --add sata --controller IntelAhci
-  VBoxManage storageattach $vm_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium  $img_name
+  vboxmanage storagectl $vm_name --name "SATA Controller" --add sata --controller IntelAhci
+  vboxmanage storageattach $vm_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium  $img_name
   
-  VBoxManage modifyvm $vm_name --mouse ps2
-  VBoxManage modifyvm $vm_name --firmware bios
+  vboxmanage modifyvm $vm_name --mouse ps2
+  vboxmanage modifyvm $vm_name --firmware bios
 
-  #TODO: we are here
-  VBoxManage modifyvm $vm_name --vrdeproperty VNCPassword=VNCPASS --vrdeport 3390
-  
-  VBoxManage modifyvm $vm_name --cpuhotplug on
-  VBoxManage modifyvm $vm_name --cpus 1
-  
-  VBoxManage unattended install $vm_name --iso /root/win10.iso --user lybavsky --password VNCPASS
-  VBoxManage modifyvm $vm_name --boot1 dvd --boot2 disk --boot3 none --boot4 none 
-  
-  VBoxManage storagectl $vm_name --name "IDE Controller" --add ide --controller PIIX4       
-  VBoxManage storageattach $vm_name --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium /usr/share/virtualbox/VBoxGuestAdditions.iso
-  
-  vboxmanage hostonlyif create
-  vboxmanage modifyvm $vm_name --nic1 hostonly --hostonlyadapter1 vboxnet2
-  vboxmanage dhcpserver add --interface=vboxnet2 --ip 192.168.57.1 --netmask 255.255.255.0 --lowerip 192.168.57.100  --upperip 192.168.57.200
-  vboxmanage dhcpserver modify --ifname vboxnet2 --enable
-  
-  VBoxManage modifyvm $vm_name --audio alsa
-  VBoxManage modifyvm $vm_name --audioout on --audiocontroller hda 
-  
-  VBoxManage modifyvm $vm_name --usb on --usbehci on --usbxhci on
+  cpus=`getval $jcfg ".cpus"`
 
+  vboxmanage modifyvm $vm_name --cpuhotplug on
+  vboxmanage modifyvm $vm_name --cpus 1
+
+  vboxmanage modifyvm $vm_name --audio alsa
+  vboxmanage modifyvm $vm_name --audioout on --audiocontroller hda 
+  
+  vboxmanage modifyvm $vm_name --usb on --usbehci on --usbxhci on
+
+
+	echo "Configuring VNC"
+	vnc_pwd=`getval $jcfg ".vnc.pwd"`
+	vnc_port=`getval $jcfg ".vnc.port"`
+  if [ "$vnc_pwd" != "" ]; then
+  	vboxmanage modifyvm $vm_name --vrde on
+	  VBoxManage modifyvm $vm_name --vrdeproperty VNCPassword=$vnc_pwd --vrdeport $vnc_port
+	else
+		vboxmanage modifyvm $vm_name --vrde off
+	fi
+
+	echo "Configuring unattended login, password"
+
+  user_name=`getval $jcfg ".user.name"`
+  user_pwd=`getval $jcfg ".user.pwd"`
+  vboxmanage unattended install $vm_name --iso $ISOF --user $user_name --password $user_pwd
+
+	#TODO: Do it after install
+  # vboxmanage modifyvm $vm_name --boot1 dvd --boot2 disk --boot3 none --boot4 none 
+  # vboxmanage storagectl $vm_name --name "IDE Controller" --add ide --controller PIIX4       
+  # vboxmanage storageattach $vm_name --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium /usr/share/virtualbox/VBoxGuestAdditions.iso
+  #
+  # vboxmanage hostonlyif create
+  # vboxmanage modifyvm $vm_name --nic1 hostonly --hostonlyadapter1 vboxnet2
+  # vboxmanage dhcpserver add --interface=vboxnet2 --ip 192.168.57.1 --netmask 255.255.255.0 --lowerip 192.168.57.100  --upperip 192.168.57.200
+  # vboxmanage dhcpserver modify --ifname vboxnet2 --enable
+  
 
 done

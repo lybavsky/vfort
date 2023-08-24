@@ -9,6 +9,17 @@ vms:
     memory_mb: 4096
     vram_mb: 256
 
+    cpus: 2
+
+    vnc:
+      pwd: 1234567890
+      port: 3390
+
+    user:
+      name: lybavsky
+      pwd: 1234567890
+
+
   secure:
     disk: 
       size: 10
