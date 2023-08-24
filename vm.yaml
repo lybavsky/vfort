@@ -13,15 +13,14 @@ vms:
 
     vnc:
       pwd: 1234567890
+      port: 5001
+
+    rde:
+      user: admin
+      pwd: admin
       port: 3390
 
     user:
       name: lybavsky
       pwd: 1234567890
-
-
-  secure:
-    disk: 
-      size: 10
-      source: file
 

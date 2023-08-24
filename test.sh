@@ -132,6 +132,10 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
 	if [ "$( vboxmanage showvminfo $vm_name >/dev/null 2>&1; echo $? )" -ne 0 ]; then
 		echo "Creating VM $vm_name"
  		vboxmanage createvm --name $vm_name --ostype Windows10_64 --register --basefolder $VDIR
+
+    vboxmanage storagectl $vm_name --name "SATA Controller" --add sata --controller IntelAhci
+    vboxmanage storageattach $vm_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium  $img_name
+  
  	else 
  		echo "VM $vm_name already exists"
  	fi
@@ -145,9 +149,7 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
   vboxmanage modifyvm $vm_name --ioapic on
   vboxmanage modifyvm $vm_name --memory $memory_mb --vram $vram_mb
   vboxmanage modifyvm $vm_name --graphicscontroller vboxsvga
-  vboxmanage storagectl $vm_name --name "SATA Controller" --add sata --controller IntelAhci
-  vboxmanage storageattach $vm_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium  $img_name
-  
+
   vboxmanage modifyvm $vm_name --mouse ps2
   vboxmanage modifyvm $vm_name --firmware bios
 
@@ -162,21 +164,41 @@ curl -f $CFG_URL 2>/dev/null | yq -c '.vms|to_entries[]' | while read jcfg; do
   vboxmanage modifyvm $vm_name --usb on --usbehci on --usbxhci on
 
 
+	echo "Configuring RDE"
+	rde_user=`getval $jcfg ".rde.user"`
+	rde_pwd=`getval $jcfg ".rde.pwd"`
+	rde_port=`getval $jcfg ".rde.port"`
+
+	vboxmanage setproperty vrdeauthlibrary "VBoxAuthSimple"
+	vboxmanage modifyvm common --vrdeauthtype external
+
+  if [ "$rde_pwd" != "" ]; then
+  	pwd_hash="$( vboxmanage internalcommands passwordhash "$rde_pwd" )"
+
+    vboxmanage setextradata $vm_name "VBoxAuthSimple/users/$rde_user" "$pwd_hash"
+  	vboxmanage modifyvm $vm_name --vrde on
+	  vboxmanage modifyvm $vm_name --vrdeport $rde_port
+	else
+		vboxmanage modifyvm $vm_name --vrde off
+	fi
+
+	#Need to fix this
 	echo "Configuring VNC"
 	vnc_pwd=`getval $jcfg ".vnc.pwd"`
 	vnc_port=`getval $jcfg ".vnc.port"`
   if [ "$vnc_pwd" != "" ]; then
-  	vboxmanage modifyvm $vm_name --vrde on
-	  VBoxManage modifyvm $vm_name --vrdeproperty VNCPassword=$vnc_pwd --vrdeport $vnc_port
+	  vboxmanage modifyvm $vm_name --vrdeproperty VNCPassword=$vnc_pwd 
 	else
-		vboxmanage modifyvm $vm_name --vrde off
 	fi
 
 	echo "Configuring unattended login, password"
 
   user_name=`getval $jcfg ".user.name"`
   user_pwd=`getval $jcfg ".user.pwd"`
+
+  echo vboxmanage unattended install $vm_name --iso $ISOF --user $user_name --password $user_pwd
   vboxmanage unattended install $vm_name --iso $ISOF --user $user_name --password $user_pwd
+  vboxmanage modifyvm $vm_name --boot1 dvd --boot2 disk --boot3 none --boot4 none
 
 	#TODO: Do it after install
   # vboxmanage modifyvm $vm_name --boot1 dvd --boot2 disk --boot3 none --boot4 none 
