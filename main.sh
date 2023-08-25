@@ -39,7 +39,7 @@ for pkg_to_install in ${pkgs_to_install[@]}; do
 done
 
 if [ "${#pkgs_will_install[@]}" -ne 0 ]; then
-        echo "Start to install packages"
+        echo "Start to install packages: ${#pkgs_will_install[@]}"
         apt update
         apt install -y ${pkgs_will_install[@]}
 else
@@ -264,13 +264,22 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	if [ "$hostif" == "disabled" -o "$inlist" -eq 1 ]; then
 		echo "Add network adapter"
 		hostif="$( vboxmanage hostonlyif create 2>/dev/null | tail -n1 | awk '{print substr($2,2,length($2)-2)}' )"
-		
-
 	fi
 
-	vboxmanage dhcpserver remove --interface=$hostif
-	vboxmanage dhcpserver add --interface=$hostif --server-ip $ip_dhcp --netmask $ip_mask --lowerip $ip_first  --upperip $ip_last --enable --set-opt=3 $ip_gw
+	echo "Will check if dhcp server exists on if network"
+	vbox_net="$( vbox_show hostonlyifs $hostif | awk '/VBoxNetworkName/{ print $2 }' )"
 
+	vbox_net_dhcp="$( vbox_show dhcpservers $vbox_net NetworkName)"
+
+	if [ -z "$vbox_net_dhcp" ]; then
+		echo "Found dhcp server will delete"
+		vboxmanage dhcpserver remove --network="$vbox_net"
+	fi
+
+  echo "Will create dhcp server"
+	vboxmanage dhcpserver add --interface=$hostif --server-ip $ip_dhcp --netmask $ip_mask --lowerip $ip_first  --upperip $ip_first --enable --set-opt=3 $ip_gw
+
+	echo "Will configure host iface ip addresses"
 	vboxmanage hostonlyif ipconfig $hostif --ip $ip_gw --netmask $ip_mask
 	$vmm --nic1 hostonly --hostonlyadapter1 $hostif
 

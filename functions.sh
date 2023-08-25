@@ -190,3 +190,23 @@ function vm_running() {
     echo 1
   fi
 }
+
+
+#Usage: got type (like hostonlyifs) and name, 3rd - optional - Field to start write
+function vbox_show() {
+  kind=$1
+  name=$2
+  field=$3
+  [ -z "$field" ] && field="Name"
+  vboxmanage list $kind | awk -v ifname=$name '
+  BEGIN{ inv=0 }
+  {
+    if ( $1 == "'"$field"':" ) { 
+      if ( $2==ifname ) { inv=1 } 
+      else { inv=0 } 
+      }; 
+    if ( inv==1 ) { 
+      print $0 
+    } 
+  }'
+}
