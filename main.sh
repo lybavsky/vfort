@@ -108,6 +108,13 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
   	err "Mask should be 29 and less"
   fi
 
+	# echo "Check existing host ifs"
+ #  vboxmanage list hostonlyifs | awk '/IPAddress:/{ print $2 }' | while read testip; do
+ #  	if [ "$( is_ip_in_net $ip_net $testip )" -eq 1 ]; then
+ #  		err "Net $ip_net already used"
+ #  	fi
+ #  done
+ 
 	#TODO: Here we heed to validate ip addresses (if already used)
 
 	vt_num=`getval $jcfg ".vt"`
