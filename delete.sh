@@ -10,7 +10,11 @@ source ${CDIR}/functions.sh
 while :; do 
     items=()
     
-    for vm in $WDIR/*; do
+    if [ "$( ls -1 $WDIR/ | wc -l )" -eq 0 ]; then
+      dialog --title "No installed VM" --clear --msgbox "No installed VM, will exit" 0 0 
+    fi
+
+    for vm in "$WDIR"/*; do
       vmn="${vm##*/}"
       items+=("${vmn}" "${vmn}")
     done
