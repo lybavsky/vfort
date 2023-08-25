@@ -165,4 +165,16 @@ function is_ip_in_net() {
 # parse_ip 192.168.0.148/26
 #NET FUNCTIONS BLOCK
 
+function get_vt() {
+pth=$1
+used=( $( cat $pth/*/start.sh | awk '{print substr($4,2)}' ) )
+for i in `seq 1 10`; do
+  if [[ ! "${used[@]}" =~ "$i" ]]; then
+    echo "$i"
+    return
+  fi
+done
+echo -1
+return
+}
 

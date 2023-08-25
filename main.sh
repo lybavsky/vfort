@@ -7,6 +7,7 @@ WINURL="https://software.download.prss.microsoft.com/dbazure/Win10_22H2_Russian_
 WDIR="/srv/vm"
 
 CDIR="`dirname $( readlink -f $0 )`"
+UNITNAME="win"
 
 ISOF="/win.iso"
 
@@ -18,7 +19,7 @@ trap "catch $LINENO" ERR
 
 if [ ! -f "/etc/systemd/system/win@.service" ]; then
 	echo "Creating systemd unit"
-	cat ${CDIR}/files/win.service.tmpl | sed -e 's/WDIR/'"$WDIR"'/g'> /etc/systemd/system/win@.service
+	cat ${CDIR}/files/win.service.tmpl | sed -e 's/WDIR/'"$WDIR"'/g'> /etc/systemd/system/${UNITNAME}@.service
 	systemctl daemon-reload
 fi
 
@@ -68,6 +69,8 @@ mkdir -p $WDIR
 cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while read jcfg; do
 	echo "Got $jcfg";
 
+
+
 	vm_name=`getkey $jcfg`
 	echo "Processing VM $vm_name"
 
@@ -81,10 +84,8 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 
 	rde_user=`getval $jcfg ".rde.user"`
 	rde_pwd=`getval $jcfg ".rde.pwd"`
-	rde_port=`getval $jcfg ".rde.port"`
 
 	vnc_pwd=`getval $jcfg ".vnc.pwd"`
-	vnc_port=`getval $jcfg ".vnc.port"`
 
   user_name=`getval $jcfg ".user.name"`
   user_pwd=`getval $jcfg ".user.pwd"`
@@ -108,19 +109,24 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
   	err "Mask should be 29 and less"
   fi
 
-	# echo "Check existing host ifs"
- #  vboxmanage list hostonlyifs | awk '/IPAddress:/{ print $2 }' | while read testip; do
- #  	if [ "$( is_ip_in_net $ip_net $testip )" -eq 1 ]; then
- #  		err "Net $ip_net already used"
- #  	fi
- #  done
- 
-	#TODO: Here we heed to validate ip addresses (if already used)
-
-	vt_num=`getval $jcfg ".vt"`
-
-
 	vmm="vboxmanage modifyvm $vm_name"
+
+  # echo "Check existing host ifs"
+  #  vboxmanage list hostonlyifs | awk '/IPAddress:/{ print $2 }' | while read testip; do
+  #  	if [ "$( is_ip_in_net $ip_net $testip )" -eq 1 ]; then
+  #  		err "Net $ip_net already used"
+  #  	fi
+  #  done
+ 
+	vt_num="$( get_vt $WDIR )"
+
+	if [ $vt_num -eq "-1" ]; then
+		err "Not enough free VT"
+	fi
+
+
+	rde_port="$(( 3389 + $vt_num ))"
+	vnc_port="$(( 5000 + $vt_num ))"
 
 
 	echo "Create VM folder"
@@ -259,6 +265,9 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	chmod +x $VDIR/vbox.sh
 	
 	systemctl enable win@${vm_name}.service
+
+	# /etc/systemd/system/getty.target.wants/win@common.service
+
 
 	#TODO: set resolution - should exec only on running machine
 	VBoxManage controlvm ${vm_name} setvideomodehint 1366 768 32
