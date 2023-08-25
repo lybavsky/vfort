@@ -284,6 +284,7 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	# TODO: need to set modehint
 	# vboxmanage controlvm ${vm_name} setvideomodehint 1366 768 32
 
+	echo "Set extradata for video mode"
   VBoxManage setextradata ${vm_name} "CustomVideoMode1" "1366x786x24"
 	VBoxManage setextradata global GUI/MaxGuestResolution 1366x786
 
