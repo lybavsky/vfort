@@ -251,9 +251,9 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 
 	echo "Check if adapter attached"
 	hostif="$( vboxmanage showvminfo $vm_name | grep "^NIC 1:" | grep "Host-only Interface" | sed -e 's/^.*'"'"'\(.*\)'"'"'.*$/\1/g;s/^.*\s\{1,\}//g' )"
-	inlist="$( vboxmanage list hostonlyifs | awk '/^Name/{print $2}' | grep $hostif -q; echo $? )"
+	inlist="$( vboxmanage list hostonlyifs | awk '/^Name/{print $2}' | grep "$hostif" -q; echo $? )"
 
-	if [ -z "$hostif" -o $hostif" == "disabled" -o "$inlist" -eq 1 ]; then
+	if [ "$hostif" == "" -o "$hostif" == "disabled" -o "$inlist" -eq 1 ]; then
 		echo "Add network adapter"
 		hostif="$( vboxmanage hostonlyif create 2>/dev/null | tail -n1 | awk '{print substr($2,2,length($2)-2)}' )"
 	else
