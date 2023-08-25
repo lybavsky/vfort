@@ -16,3 +16,4 @@ TODO:
 - fix vnc unavailability
 - disable vnc if no password provided
 - remap keys
+- dont touch existing vm
