@@ -249,10 +249,12 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 
 
 
+	set +o pipefail
 	echo "Check if adapter attached"
 	hostif="$( vboxmanage showvminfo $vm_name | grep "^NIC 1:" | grep "Host-only Interface" | sed -e 's/^.*'"'"'\(.*\)'"'"'.*$/\1/g;s/^.*\s\{1,\}//g' )"
 	echo "Check if adapter exists"
 	inlist="$( vboxmanage list hostonlyifs | awk '/^Name/{print $2}' | grep "$hostif" -q; echo $? )"
+	set -o pipefail
 
 	if [ -z "$hostif"  -o "$hostif" == "disabled" -o "$inlist" -eq 1 ]; then
 		echo "Add network adapter"
@@ -268,7 +270,7 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	vbox_net_dhcp="$( vbox_show dhcpservers $vbox_net NetworkName)"
 	echo "Vboxnet dhcp: ${vbox_net_dhcp}"
 
-	if [ ! -e "$vbox_net_dhcp" ]; then
+	if [ -z  "$vbox_net_dhcp" ]; then
 		echo "Found dhcp server will delete"
 		vboxmanage dhcpserver remove --network="$vbox_net"
 	fi
