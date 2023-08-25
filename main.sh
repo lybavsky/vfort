@@ -184,7 +184,7 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
  	else 
  		echo "VM $vm_name already exists"
  		vmstate="$(vm_state $vm_name)"
- 		if [ "$vmstate" != "powered off" ]; then
+ 		if [ "$vmstate" != "powered off" -a "$vmstate" != "aborted" ]; then
 			echo "VM state is $vmstate, need to poweroff"
 			vboxmanage controlvm $vm_name poweroff
 		fi
