@@ -48,7 +48,7 @@ while :; do
     systemctl disable ${UNITNAME}@${vm_name}
     
     
-    hostif="$( vboxmanage showvminfo $vm_name | sed -e '/^NIC 1/!d;s/^.*'"'"'\(.*\)'"'"'.*$/\1/g;s/^.*\s\{1,\}//g' )"
+    hostif="$( vboxmanage showvminfo $vm_name | grep "^NIC 1:" | grep "Host-only Interface" | sed -e 's/^.*'"'"'\(.*\)'"'"'.*$/\1/g;s/^.*\s\{1,\}//g' )"
     inlist="$( vboxmanage list hostonlyifs | awk '/^Name/{print $2}' | grep $hostif -q; echo $? )"
     
 
