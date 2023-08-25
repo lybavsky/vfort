@@ -8,29 +8,35 @@ if [[ "${l}" =~ value\ 0 ]]; then
         if [[ "${l}" =~ code\ 113 ]]; then
                         echo "Switch VT"
                         AC="$( cat /sys/class/tty/tty0/active | sed 's/[^0-9]*//g' )";
-                        TTYS=( $( cat /srv/vm/*/start.sh | awk '{print substr($4,2)}' ) )
+                        TTYS=( $( cat /srv/vm/*/start.sh | awk '{print substr($5,3)}' ) )
+
+                        echo "TTYS is ( ${TTYS[@]} )"
+                        echo "AC is $AC"
 
                         cur=-1
-                        for i in `seq 1 ${#TTYS[@]}`; do
-                                if [ "$i" == "$AC" ]; then
+                        for i in `seq 0 $(( ${#TTYS[@]} - 1 ))`; do
+                                echo "try $i"
+                                if [ "${TTYS[$i]}" == "$AC" ]; then
                                         cur="$i"
                                         break
                                 fi
                         done
 
+                        echo "cur is $cur"
                         if [ "$cur" == -1 ]; then
-                                cur=1
-                        elif [ "$cur" == "${#TTYS[@]}" ]; then
-                                cur=1
+                                cur=0
+                        elif [ "$cur" -eq  $(( "${#TTYS[@]}" - 1 )) ]; then
+                                cur=0
                         else
                                 cur="$(( cur + 1 ))"
                         fi
 
-                        echo "cur is $cur"
+                        echo "newcur is $cur"
                         newvt="${TTYS[$cur]}"
+                        echo "newvt is $newvt"
                         chvt $newvt
                         vm_name="$( for i in /srv/vm/*/start.sh; do if $( grep -q vt$newvt $i ); then echo $i; fi; done | sed -e 's/\/start.sh//g;s/^.*\///g' )"
-                        DISPLAY=:$cur timeout 3 sm  "VM $vm_name"
+                        DISPLAY=:$newvt timeout 3 sm  "VM $vm_name"
 
         elif [[ "${l}" =~ code\ 115 ]]; then
                         echo "Volume up"

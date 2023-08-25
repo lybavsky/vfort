@@ -296,7 +296,7 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 
   echo "Start to configure init scripts"
 
-	echo "xinit $VDIR/vbox.sh  -- :1 vt${vt_num} -nolisten tcp -keeptty" > $VDIR/start.sh
+	echo "xinit $VDIR/vbox.sh  -- :${vt_num} vt${vt_num} -nolisten tcp -keeptty" > $VDIR/start.sh
 	chmod +x $VDIR/start.sh
 
 
