@@ -224,19 +224,19 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
   vboxmanage startvm $vm_name --type headless
 
 	myip="$( ip ro get 8.8.8.8 | awk '{print $7}' )"
-  # dialog --msgbox "You need to connect via RDP ${myip}:${rde_port} as ${rde_user}:${rde_pwd} to VM and press continue to boot from iso, when windows will be installed, shutdown the vm " 10 0
+  dialog --msgbox "You need to connect via RDP ${myip}:${rde_port} as ${rde_user}:${rde_pwd} to VM and press continue to boot from iso, when windows will be installed, shutdown the vm " 10 0
 
 
 	#TODO: set resolution - should exec only on running machine
 	vboxmanage controlvm ${vm_name} setvideomodehint 1366 768 32
 
-	#TODO: Temp, delete me
-	VBoxManage controlvm common poweroff
+	# TODO: Temp, delete me
+	# VBoxManage controlvm common poweroff
 
-	# while [ "$( vm_running $vm_name )" -eq 1 ]; do
-	# 	echo "Waiting for unattended process finish.."
-	# 	sleep 10
-	# done
+	while [ "$( vm_running $vm_name )" -eq 1 ]; do
+		echo "Waiting for unattended process finish.."
+		sleep 10
+	done
 
 
   $vmm --boot1 disk --boot2 none --boot3 none --boot4 none 
