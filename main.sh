@@ -19,7 +19,7 @@ trap "catch $LINENO" ERR
 
 if [ ! -f "/etc/systemd/system/win@.service" ]; then
 	echo "Creating systemd unit"
-	cat ${CDIR}/files/win.service.tmpl | sed -e 's/WDIR/'"$WDIR"'/g'> /etc/systemd/system/${UNITNAME}@.service
+	cat ${CDIR}/files/win.service.tmpl | sed -e 's/WDIR/'"${WDIR//\//\\/}"'/g'> /etc/systemd/system/${UNITNAME}@.service
 	systemctl daemon-reload
 fi
 
@@ -180,6 +180,10 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
   
  	else 
  		echo "VM $vm_name already exists"
+ 		vmstate="$(vm_state $vm_name)"
+ 		if [ "$vmstate" != "powered off" ]; then
+			echo "VM state is $vmstate, need to poweroff"
+			vboxmanage controlvm $vm_name poweroff
  	fi
 
 
@@ -207,6 +211,7 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
   if [ "$rde_pwd" != "" ]; then
   	pwd_hash="$( vboxmanage internalcommands passwordhash "$rde_pwd" )"
 
+		echo "pwd hash is ${pwd_hash}"
     vboxmanage setextradata $vm_name "VBoxAuthSimple/users/$rde_user" "$pwd_hash"
   	$vmm --vrde on
 	  $vmm --vrdeport $rde_port
@@ -218,7 +223,6 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	echo "Configuring VNC"
   if [ "$vnc_pwd" != "" ]; then
 	  $vmm --vrdeproperty VNCPassword=$vnc_pwd 
-	else
 	fi
 
 	echo "Configuring unattended login, password"
@@ -233,7 +237,7 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	#TODO: set resolution - should exec only on running machine
 	vboxmanage controlvm ${vm_name} setvideomodehint 1366 768 32
 
-	while [ "$( vboxmanage showvminfo $vm_name | grep "State:.*running" -q )" -ne 0 ]; done
+	while [ "$( vboxmanage showvminfo $vm_name | grep "State:.*running" -q )" -ne 0 ]; do
 		echo "Waiting for unattended process finish.."
 		sleep 60
 	done

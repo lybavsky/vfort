@@ -178,3 +178,7 @@ echo -1
 return
 }
 
+
+function vm_state() {
+  vboxmanage showvminfo $1 | awk '/^State:/{ print gensub(/State: *(.*)\(.*$/,"\\1","g",$0) }'
+}
