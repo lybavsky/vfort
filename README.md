@@ -15,3 +15,4 @@ TODO:
 - dialogs to put usb filter/allow all usb to some vm
 - fix vnc unavailability
 - disable vnc if no password provided
+- remap keys

@@ -7,3 +7,8 @@ After=systemd-modules-load.service network.target multi-user.target
 [Service]
 Type=simple
 ExecStart=bash -c /usr/local/bin/events.sh
+
+[Install]
+After=systemd-modules-load.service network.target multi-user.target
+
+
