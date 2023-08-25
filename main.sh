@@ -232,7 +232,7 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
   vboxmanage startvm $vm_name --type headless
 
 	myip="$( ip ro get 8.8.8.8 | awk '{print $7}' )"
-  dialog --msgbox "You need to connect via RDP ${myip}:${rde_port} as ${rde_user}:${rde_pwd} to VM and press continue to boot from iso, when windows will be installed, shutdown the vm " 10 0
+  # dialog --msgbox "You need to connect via RDP ${myip}:${rde_port} as ${rde_user}:${rde_pwd} to VM and press continue to boot from iso, when windows will be installed, shutdown the vm " 10 0
 
 
 	#TODO: set resolution - should exec only on running machine
@@ -241,10 +241,10 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	#TODO: Temp, delete me
 	VBoxManage controlvm common poweroff
 
-	while [ "$( vm_running $vm_name )" -eq 1 ]; do
-		echo "Waiting for unattended process finish.."
-		sleep 10
-	done
+	# while [ "$( vm_running $vm_name )" -eq 1 ]; do
+	# 	echo "Waiting for unattended process finish.."
+	# 	sleep 10
+	# done
 
 
   $vmm --boot1 disk --boot2 none --boot3 none --boot4 none 
@@ -264,14 +264,18 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	if [ "$hostif" == "disabled" -o "$inlist" -eq 1 ]; then
 		echo "Add network adapter"
 		hostif="$( vboxmanage hostonlyif create 2>/dev/null | tail -n1 | awk '{print substr($2,2,length($2)-2)}' )"
+	else
+		echo "Adapter $hostif already attached"
 	fi
 
 	echo "Will check if dhcp server exists on if network"
 	vbox_net="$( vbox_show hostonlyifs $hostif | awk '/VBoxNetworkName/{ print $2 }' )"
+	echo "Vboxnet: ${vbox_net}"
 
 	vbox_net_dhcp="$( vbox_show dhcpservers $vbox_net NetworkName)"
+	echo "Vboxnet dhcp: ${vbox_net_dhcp}"
 
-	if [ -z "$vbox_net_dhcp" ]; then
+	if [ ! -e "$vbox_net_dhcp" ]; then
 		echo "Found dhcp server will delete"
 		vboxmanage dhcpserver remove --network="$vbox_net"
 	fi
