@@ -54,7 +54,7 @@ while :; do
       vboxmanage dhcpserver remove --network="$vbox_net"
     fi
     
-    if [ ! -z "$hostif" ]; then
+    if [ ! -z "$hostif" -a "$inlist" -eq 1 ]; then
       echo "Need to delete hostif $hostif"
       vboxmanage hostonlyif remove $hostif
     fi
