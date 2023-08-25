@@ -12,6 +12,7 @@ while :; do
     
     if [ "$( ls -1 $WDIR/ | wc -l )" -eq 0 ]; then
       dialog --title "No installed VM" --clear --msgbox "No installed VM, will exit" 0 0 
+      exit 1
     fi
 
     for vm in "$WDIR"/*; do
