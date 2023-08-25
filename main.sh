@@ -211,7 +211,7 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 
 	echo "Configuring RDE"
 	vboxmanage setproperty vrdeauthlibrary "VBoxAuthSimple"
-	vboxmanage modifyvm common --vrdeauthtype external
+	vboxmanage modifyvm $vm_name --vrdeauthtype external
 
   if [ "$rde_pwd" != "" ]; then
   	pwd_hash="$( vboxmanage internalcommands passwordhash "$rde_pwd" | cut -d' ' -f3 )"
@@ -243,7 +243,7 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	vboxmanage controlvm ${vm_name} setvideomodehint 1366 768 32
 
 	# TODO: Temp, delete me
-	# VBoxManage controlvm common poweroff
+	# VBoxManage controlvm $vm_name poweroff
 
 	while [ "$( vm_running $vm_name )" -eq 1 ]; do
 		echo "Waiting for unattended process finish.."
