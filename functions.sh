@@ -107,6 +107,24 @@ function get_long_mask() {
   mask="$(( max - cnt + 1 ))"
   echo "$( dec_to_ip $mask )"
 }
+
+function get_mask_from_cnt() {
+  cnt=$1
+  mask=32
+  while [ $cnt -gt 1 ]; do
+    cnt="$(( cnt / 2 ))"
+    mask="$(( mask - 1 ))"
+  done
+
+  echo $mask
+}
+
+function get_short_mask() {
+  max="$( ip_to_dec 255.255.255.255 )"
+  mask="$( ip_to_dec $1 )"
+  cnt="$(( $max - $mask + 1 ))"
+  echo "$( get_mask_from_cnt $cnt)"
+}
 # function parse_ip() {
 #   str=$1
 #   ipstr=${str%%\/[0-9]*}
@@ -116,6 +134,7 @@ function get_long_mask() {
 #   get_net $ipstr $cidrstr
 #   get_net_cnt $cidrstr
 #
+# get_short_mask 255.255.255.0
 #   ip_gw="$( get_nth_ip $ipstr $cidrstr 1 )"
 #   ip_dhcp="$( get_nth_ip $ipstr $cidrstr 2 )"
 #   ip_first="$( get_nth_ip $ipstr $cidrstr 3 )"
