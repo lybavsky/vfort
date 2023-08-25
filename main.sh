@@ -15,7 +15,7 @@ ISOF="/win.iso"
 
 source ${CDIR}/functions.sh
 
-trap "catch $LINENO" ERR
+# trap "catch $LINENO" ERR
 
 if [ ! -f "/etc/systemd/system/win@.service" ]; then
 	echo "Creating systemd unit"
@@ -238,10 +238,14 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	#TODO: set resolution - should exec only on running machine
 	vboxmanage controlvm ${vm_name} setvideomodehint 1366 768 32
 
+	#TODO: Temp, delete me
+	VBoxManage controlvm common poweroff
+
 	while [ "$( vm_running $vm_name )" -eq 1 ]; do
 		echo "Waiting for unattended process finish.."
-		sleep 60
+		sleep 10
 	done
+
 
   $vmm --boot1 disk --boot2 none --boot3 none --boot4 none 
 

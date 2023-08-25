@@ -31,11 +31,12 @@ function umount_re() {
 	re=$2
 
 	vboxmanage showvminfo $vmname | grep "$re" | while read l; do 
+	  echo "umount $l"
   	ctrl="${l%% \(*}"
   	num="${l%%)*}"
   	dev="${num##*, }"
   	port="${num##* (}"; port="${port%%, *}"
-  	vboxmanage storageattach $vmname --storagectl "$ctrl" --port $port --device $dev --type hdd --medium none
+  	vboxmanage storageattach $vmname --storagectl "$ctrl" --port "$port" --device "$dev" --type hdd --medium none || echo fail
   done
 }
 
