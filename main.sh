@@ -210,10 +210,10 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	vboxmanage modifyvm common --vrdeauthtype external
 
   if [ "$rde_pwd" != "" ]; then
-  	pwd_hash="$( vboxmanage internalcommands passwordhash "$rde_pwd" )"
+  	pwd_hash="$( vboxmanage internalcommands passwordhash "$rde_pwd" | cut -d' ' -f3 )"
 
 		echo "pwd hash is ${pwd_hash} for $rde_user,$rde_pwd"
-    vboxmanage setextradata $vm_name "VBoxAuthSimple/users/$rde_user" "$pwd_hash"
+    vboxmanage setextradata $vm_name "VBoxAuthSimple/users/$rde_user" $pwd_hash
   	$vmm --vrde on
 	  $vmm --vrdeport $rde_port
 	else
