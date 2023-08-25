@@ -17,3 +17,4 @@ TODO:
 - disable vnc if no password provided
 - remap keys
 - dont touch existing vm
+- sm messages dont work as expected
