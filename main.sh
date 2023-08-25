@@ -184,6 +184,7 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
  		if [ "$vmstate" != "powered off" ]; then
 			echo "VM state is $vmstate, need to poweroff"
 			vboxmanage controlvm $vm_name poweroff
+		fi
  	fi
 
 
