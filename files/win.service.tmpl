@@ -10,4 +10,4 @@ ExecStart=bash -c WDIR/%i/start.sh
 ExecStop=/usr/bin/VBoxManage controlvm %i acpipowerbutton
 
 [Install]
-After=systemd-modules-load.service network.target multi-user.target
+WantedBy=multi-user.target
