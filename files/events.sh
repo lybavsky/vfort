@@ -36,7 +36,7 @@ if [[ "${l}" =~ value\ 0 ]]; then
                         echo "newvt is $newvt"
                         chvt $newvt
                         vm_name="$( for i in /srv/vm/*/start.sh; do if $( grep -q vt$newvt $i ); then echo $i; fi; done | sed -e 's/\/start.sh//g;s/^.*\///g' )"
-                        DISPLAY=:$newvt timeout 3 sm  "VM $vm_name"
+                        DISPLAY=:$newvt timeout 3 /usr/games/sm  "VM $vm_name"
 
         elif [[ "${l}" =~ code\ 115 ]]; then
                         echo "Volume up"
