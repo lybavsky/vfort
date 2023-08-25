@@ -72,7 +72,7 @@ while :; do
       part="$( cat "/srv/vm/$vm_name/disk.vmdk" | awk '/RW/{print substr($4,2,length($4)-2)}' )"
     
       device="${part%%[0-9]*}"
-      devpref="${#device[@]}"
+      devpref="${#device}"
       partn="${part:$devpref}"
     
       echo "sfdisk --delete $device $partn"
