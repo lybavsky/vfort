@@ -305,9 +305,6 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	
 	systemctl enable win@${vm_name}.service
 
-	# TODO: path to get enabled systemd services
-	# /etc/systemd/system/getty.target.wants/win@common.service
-
 	# TODO: need to set modehint
 	# vboxmanage controlvm ${vm_name} setvideomodehint 1366 768 32
 
@@ -315,4 +312,5 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
   VBoxManage setextradata ${vm_name} "CustomVideoMode1" "1366x786x24"
 	VBoxManage setextradata global GUI/MaxGuestResolution 1366x786
 
+	systemctl start win@${vm_name}.service
 done
