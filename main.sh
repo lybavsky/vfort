@@ -256,15 +256,23 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	umount_re $vm_name "$ISOF"
 
 
-	echo "Add network adapter"
-	hostif="$( vboxmanage hostonlyif create 2>/dev/null | tail -n1 | awk '{print substr($2,2,length($2)-2)}' )"
-	
-	vboxmanage hostonlyif ipconfig vboxnet0 --ip $ip_gw --netmask $ip_mask
 
-  vboxmanage dhcpserver add --interface=$hostif --server-ip $ip_dhcp --netmask $ip_mask --lowerip $ip_first  --upperip $ip_last --enable --set-opt=3 $ip_gw
+	echo "Check if adapter attached"
+	hostif="$( vboxmanage showvminfo $vm_name | sed -e '/^NIC 1/!d;s/^.*'"'"'\(.*\)'"'"'.*$/\1/g;s/^.*\s\{1,\}//g' )"
+	inlist="$( vboxmanage list hostonlyifs | awk '/^Name/{print $2}' | grep $hostif -q; echo $? )"
 
-  $vmm --nic1 hostonly --hostonlyadapter1 $hostif
+	if [ "$hostif" == "disabled" -o "$inlist" -eq 1 ]; then
+		echo "Add network adapter"
+		hostif="$( vboxmanage hostonlyif create 2>/dev/null | tail -n1 | awk '{print substr($2,2,length($2)-2)}' )"
+		
 
+	fi
+
+	vboxmanage dhcpserver remove --interface=$hostif
+	vboxmanage dhcpserver add --interface=$hostif --server-ip $ip_dhcp --netmask $ip_mask --lowerip $ip_first  --upperip $ip_last --enable --set-opt=3 $ip_gw
+
+	vboxmanage hostonlyif ipconfig $hostif --ip $ip_gw --netmask $ip_mask
+	$vmm --nic1 hostonly --hostonlyadapter1 $hostif
 
 
   echo "Start to configure init scripts"
