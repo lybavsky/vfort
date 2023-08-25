@@ -21,7 +21,7 @@ sed -i /etc/systemd/logind.conf -e '$aHandleLidSwitch=ignore'
 systemctl restart systemd-logind.service
 
 echo "Check packages to install"
-pkgs_to_install=(bridge-utils xinit virtualbox virtualbox-ext-pack virtualbox-guest-utils virtualbox-guest-additions-iso dialog python3 python3-pip jq sm)
+pkgs_to_install=(bridge-utils xinit virtualbox virtualbox-ext-pack virtualbox-guest-utils virtualbox-guest-additions-iso dialog python3 python3-pip jq sm evtest alsa-utils)
 pkgs_will_install=()
 pkgs_installed=( $(dpkg -l | awk '/^ii/{print $2}' ) )
 for pkg_to_install in ${pkgs_to_install[@]}; do
@@ -54,6 +54,17 @@ if [ ! -f "/etc/vbox/networks.conf" ]; then
 	echo "* 0.0.0.0/0 ::/0" > /etc/vbox/networks.conf 
 	systemctl restart virtualbox
 fi
+
+
+echo "Copy evtest script"
+cp $CDIR/files/events.sh /usr/local/bin/events.sh
+chmod +x /usr/local/bin/events.sh
+
+echo "Copy evtest system unit"
+cp $CDIR/files/evtest.service /etc/systemd/system/evtest.service
+systemctl daemon-reload
+systemctl enable evtest.service
+systemctl start evtest.service
 
 echo "Make VM directory $WDIR"
 mkdir -p $WDIR
