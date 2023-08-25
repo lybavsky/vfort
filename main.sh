@@ -252,8 +252,8 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	echo "Umount unattended"
 	umount_re $vm_name "Unattended"
 
-	echo "Umount win iso"
-	umount_re $vm_name "$img_name"
+	echo "Umount win iso $ISOF"
+	umount_re $vm_name "$ISOF"
 
 
 	echo "Add network adapter"
