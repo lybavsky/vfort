@@ -125,6 +125,24 @@ function get_short_mask() {
   cnt="$(( $max - $mask + 1 ))"
   echo "$( get_mask_from_cnt $cnt)"
 }
+
+function is_ip_in_net() {
+  str=$1
+  ip=$2
+  ipstr=${str%%\/[0-9]*}
+  cidrstr=${str##*\/}
+
+  first="$( ip_to_dec `get_nth_ip $ipstr $cidrstr 0 ` )"
+  last="$( ip_to_dec `get_nth_ip $ipstr $cidrstr -1 ` )"
+  ipdec="$( ip_to_dec $ip )"
+
+  if [ $first -le $ipdec -a $ipdec -le $last ]; then
+    echo 1
+  else
+    echo 0
+  fi
+
+}
 # function parse_ip() {
 #   str=$1
 #   ipstr=${str%%\/[0-9]*}
@@ -133,6 +151,7 @@ function get_short_mask() {
 #   dec_to_ip "$( ip_to_dec $ipstr )"
 #   get_net $ipstr $cidrstr
 #   get_net_cnt $cidrstr
+#   is_ip_in_net 192.168.0.0/24 192.168.1.255
 #
 # get_short_mask 255.255.255.0
 #   ip_gw="$( get_nth_ip $ipstr $cidrstr 1 )"
@@ -145,4 +164,5 @@ function get_short_mask() {
 # }
 # parse_ip 192.168.0.148/26
 #NET FUNCTIONS BLOCK
+
 
