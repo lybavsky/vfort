@@ -270,8 +270,8 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	vbox_net_dhcp="$( vbox_show dhcpservers $vbox_net NetworkName)"
 	echo "Vboxnet dhcp: ${vbox_net_dhcp}"
 
-	if [ -z  "$vbox_net_dhcp" ]; then
-		echo "Found dhcp server will delete"
+	if [ ! -z  "$vbox_net_dhcp" ]; then
+		echo "Found dhcp server will delete $vbox_net"
 		vboxmanage dhcpserver remove --network="$vbox_net"
 	fi
 
