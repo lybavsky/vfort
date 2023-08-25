@@ -238,7 +238,7 @@ cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while 
 	#TODO: set resolution - should exec only on running machine
 	vboxmanage controlvm ${vm_name} setvideomodehint 1366 768 32
 
-	while [ "$( vboxmanage showvminfo $vm_name | grep "State:.*running" -q; echo $? )" -ne 0 ]; do
+	while [ "$( vm_running $vm_name )" -eq 1 ]; do
 		echo "Waiting for unattended process finish.."
 		sleep 60
 	done
