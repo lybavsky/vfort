@@ -12,8 +12,32 @@ source ${CDIR}/functions.sh
 
 if [ $# == 1 ]; then
   echo "Passed parameter: $1"
-
   [ ! -f "$1" ] && err "File $1 not exists. If you pass param, it should be path to yaml file"
-
-
 fi
+
+
+while :; do 
+    exec 4>&1
+    action=$(dialog \
+      --title "Delete VM" \
+      --clear \
+      --no-cancel \
+      --menu "Please select VM to delete:" 0 0 4 \
+      "create" "Create new VM" \
+      "delete" "Delete VMs" \
+      "exit" "Exit script" \
+      2>&1 1>&4 )
+
+case $action in
+  exit) 
+    exit 0
+    ;;
+  *)
+    clear
+    echo "$action"
+    sleep 1
+    ;;
+esac
+
+
+done
