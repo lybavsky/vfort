@@ -1,0 +1,26 @@
+name: common
+disk:
+  #disk size in gb
+  size: 40
+  #disk source: file or /dev/sdX
+  source: /dev/sda
+  
+memory_mb: 4096
+vram_mb: 256
+
+cpus: 2
+
+#will used on working instance
+vnc:
+  pwd: 1234567890
+
+#will used while installing
+rde:
+  user: admin
+  pwd: admin
+
+user:
+  name: lybavsky
+  pwd: 1234567890
+
+net: 192.168.0.0/25
