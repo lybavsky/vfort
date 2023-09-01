@@ -9,69 +9,12 @@ source ${CDIR}/functions.sh
 
 # trap "catch $LINENO" ERR
 
-if [ ! -f "/etc/systemd/system/win@.service" ]; then
-	echo "Creating systemd unit"
-	cat ${CDIR}/files/win.service.tmpl | sed -e 's/WDIR/'"${WDIR//\//\\/}"'/g'> /etc/systemd/system/${UNITNAME}@.service
-	systemctl daemon-reload
-fi
+#start prepare script
+source ${CDIR}/prepare.sh
 
-echo "Disable powersave mode when closing laptop"
-sed -i /etc/systemd/logind.conf -e '/HandleLidSwitch/d'
-sed -i /etc/systemd/logind.conf -e '$aHandleLidSwitch=ignore'
-systemctl restart systemd-logind.service
-
-echo "Check packages to install"
-pkgs_to_install=(bridge-utils xinit virtualbox virtualbox-ext-pack virtualbox-guest-utils virtualbox-guest-additions-iso dialog python3 python3-pip jq sm evtest alsa-utils)
-pkgs_will_install=()
-pkgs_installed=( $(dpkg -l | awk '/^ii/{print $2}' ) )
-for pkg_to_install in ${pkgs_to_install[@]}; do
-        if [[ "$pkg_to_install" =~ " ${pkgs_installed[@]} " ]]; then
-                pkgs_will_install+=($pkg_to_install)
-        fi
-done
-
-if [ "${#pkgs_will_install[@]}" -ne 0 ]; then
-        echo "Start to install packages: ${#pkgs_will_install[@]}"
-        apt update
-        apt install -y ${pkgs_will_install[@]}
-else
-        echo "No need to install packages"
-
-fi
-
-pip3 install yq
-
-if [ ! -f "$ISOF" ]; then
-	echo "Download windows 10 iso"
-	wget -O $ISOF "$WINURL"
-else
-	echo "$ISOF already presented"
-fi
-
-if [ ! -f "/etc/vbox/networks.conf" ]; then
-	echo "Fix virtualbox net ranges"
-	mkdir -p /etc/vbox
-	echo "* 0.0.0.0/0 ::/0" > /etc/vbox/networks.conf 
-	systemctl restart virtualbox
-fi
-
-
-echo "Copy evtest script"
-cp $CDIR/files/events.sh /usr/local/bin/events.sh
-chmod +x /usr/local/bin/events.sh
-
-echo "Copy evtest system unit"
-cp $CDIR/files/evtest.service /etc/systemd/system/evtest.service
-systemctl daemon-reload
-systemctl enable evtest.service
-systemctl start evtest.service
-
-echo "Make VM directory $WDIR"
-mkdir -p $WDIR
 
 cat "`dirname $( readlink -f $0 )`/vm.yaml" | yq -c '.vms|to_entries[]' | while read jcfg; do
 	echo "Got $jcfg";
-
 
 
 	vm_name=`getkey $jcfg`
