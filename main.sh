@@ -21,7 +21,7 @@ disk:
   size: 10
   source: file
 memory_mb: 1024
-vram_mb: 64
+vram_mb: 256
 cpus: 1
 vnc:
   pwd: ''
@@ -173,12 +173,13 @@ while true; do
           ;;
         menu_memory)
           process_int_msg .memory_mb "$result" "Memory should be integer number" \
-            menu_vram .vram_mb
+            menu_cpus .cpus
+            # menu_vram .vram_mb
           ;;
-        menu_vram)
-          process_int_msg .vram_mb "$result" "Video memory should be integer number and le 256" \
-            menu_cpus  .cpus
-          ;;
+        # menu_vram)
+        #   process_int_msg .vram_mb "$result" "Video memory should be integer number and le 256" \
+        #     menu_cpus  .cpus
+        #   ;;
         menu_cpus)
           process_int_msg .cpus "$result" "CPU count should be integer number" \
             menu_vnc_pass .vnc.pwd
