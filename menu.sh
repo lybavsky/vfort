@@ -38,19 +38,68 @@ function menu_err_message() {
         --msgbox "$1" 0 0 2>&1 1>&4
 }
 
-
-function menu_disk_size() {
-    size="$(dialog \
-      --title "Disk type" \
-      --inputbox "Please write size of disk in GB" 0 0 "$@" 2>&1 1>&4 
+function menu_inputbox() {
+    title=$1
+    shift
+    text=$1
+    shift
+    val="$(dialog \
+      --title "$title" \
+      --inputbox "$text" 0 0 "$@" 2>&1 1>&4 
     )"
 
-    echo $size
+    echo $val
+}
+
+function menu_passwordbox() {
+    title=$1
+    shift
+    text=$1
+    shift
+    val="$(dialog \
+      --title "$title" \
+      --insecure \
+      --passwordbox "$text" 0 0 "$@" 2>&1 1>&4 
+    )"
+
+    echo $val
+}
+
+function menu_disk_size() {
+    menu_inputbox "Disk size" "Please write size of disk in GB" "$@"
+}
+
+function menu_memory() {
+    menu_inputbox "Memory size" "Please write size of ram in MB" "$@"
+}
+
+function menu_vram() {
+    menu_inputbox "VRAM size" "Please write size of video ram in MB" "$@"
+}
+
+function menu_cpus() {
+    menu_inputbox "CPU count" "Please write count of CPUs" "$@"
+}
+
+function menu_vnc_pass() {
+    menu_passwordbox "VNC password" "Please provide password for VNC access" "$@"
+}
+
+function menu_user_name() {
+    menu_inputbox "User name" "Please provide system user name" "$@"
+}
+
+function menu_user_pwd() {
+    menu_passwordbox "User password" "Please provide system user password" "$@"
+}
+
+function menu_net() {
+    menu_inputbox "Network address" "Please set network in form x.x.x.x/x" "$@"
 }
 
 function menu_disk_type() {
-    #Need to check disk space and available disks
-    action=$(dialog \
+    #TODO: Need to check disk space and available disks
+    disk_type=$(dialog \
       --title "Disk type" \
       --no-cancel \
       --default-item "$1" \
@@ -62,5 +111,24 @@ function menu_disk_type() {
       "exit" "Exit script" \
       2>&1 1>&4 )
 
-    echo $action
+    echo $disk_type
+}
+
+function menu_iso() {
+    iso=$(dialog \
+      --title "Select path to iso file" \
+      --fselect "$1" 0 0 \
+      2>&1 1>&4 )
+    echo "$iso"
+}
+
+function menu_start() {
+    msg="$@"
+    dialog \
+        --title "Will start creating" \
+        --clear \
+        --no-collapse \
+        --yesno "${msg}" 0 0 2>&1 1>&4
+
+    echo "$?"
 }

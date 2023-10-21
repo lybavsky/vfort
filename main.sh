@@ -37,8 +37,6 @@ curr_menu="menu_main"
 curr_params=""
 
 function last_menu() {
-  # clear
-  # echo "last_menu before curr_menu: $curr_menu, hist: '${prev_menu[@]}'"
   menu_last="$(( ${#prev_menu[@]} - 1  ))"
 
   curr_menu="${prev_menu[$menu_last]}"
@@ -46,9 +44,6 @@ function last_menu() {
 
   curr_params="${prev_params[$menu_last]}"
   unset -v prev_params[$menu_last]
-
-  # echo "last_menu after curr_menu: $curr_menu, hist: '${prev_menu[@]}'"
-  # sleep 5
 }
 
 function set_menu() {
@@ -56,7 +51,39 @@ function set_menu() {
   prev_params+=("$curr_params")
   curr_menu="$1"
   curr_params="$2"
+}
 
+function process_int_msg() {
+  tmpl_path="$1"
+  result="$2"
+  msg_err_valid="$3"
+  next_menu="$4"
+  new_tmpl_path="$5"
+
+  if [ "$result" == "" ]; then
+    last_menu
+  elif [[ ! "$result" =~ ^[0-9]*$ ]]; then 
+    set_menu menu_err_message "$msg_err_valid"
+  else
+    struct="$(setyval "$struct" "$tmpl_path" "$result")"
+    tmpl_param="`getyval "$struct" $new_tmpl_path`"
+    set_menu $next_menu "$tmpl_param"
+  fi
+}
+
+function process_str_msg() {
+  tmpl_path="$1"
+  result="$2"
+  next_menu="$3"
+  new_tmpl_path="$4"
+
+  if [ "$result" == "" ]; then
+    last_menu
+  else
+    struct="$(setyval "$struct" "$tmpl_path" '"'"$result"'"')"
+    tmpl_param="`getyval "$struct" $new_tmpl_path`"
+    set_menu $next_menu "$tmpl_param"
+  fi
 }
 
 
@@ -103,17 +130,81 @@ while true; do
             set_menu menu_err_message "VM name should contain only latin symbols and numbers"
           else
             tmp_param="`getyval "$struct" .disk.size`"
-            set_menu menu_disk_size "$tmp_param"         
+            set_menu menu_disk_size "$tmp_param"
           fi
-        ;;
-      menu_disk_size)
-        if [[ ! "$result" =~ ^[0-9]*$ ]]; then
-          set_menu menu_err_message "Disk size should be integer number"
-        else
-          tmp_param="`getyval "$struct" .disk.type`"
-          set_menu menu_disk_type "$tmp_param"
-        fi
-        ;;
+          ;;
+        menu_disk_size)
+          process_int_msg .disk.size "$result"  "Disk size should be integer number" \
+            menu_disk_type .disk.type
+          ;;
+        menu_disk_type)
+          struct="$(setyval "$struct" .disk.type '"'"$result"'"')"
+
+          set_menu menu_memory "`getyval "$struct" .memory_mb`"
+          ;;
+        menu_memory)
+          process_int_msg .memory_mb "$result" "Memory should be integer number" \
+            menu_vram .vram_mb
+          ;;
+        menu_vram)
+          process_int_msg .vram_mb "$result" "Video memory should be integer number" \
+            menu_cpus  .cpus
+          ;;
+        menu_cpus)
+          process_int_msg .cpus "$result" "CPU count should be integer number" \
+            menu_vnc_pass .vnc.pwd
+          ;;
+        menu_vnc_pass)
+          process_str_msg .vnc.pwd "$result" menu_user_name .user.name
+          ;;
+        menu_user_name)
+          process_str_msg .user.name "$result" menu_user_pwd .user.pwd
+          ;;
+        menu_user_pwd)
+          process_str_msg .user.pwd "$result" menu_net .net
+          ;;
+        menu_net)
+          if [ "$result" == "" ]; then
+            last_menu
+          else 
+            val_msg="$( validate_cidr $result )"
+
+            if [ "$val_msg" != "" ]; then 
+              set_menu menu_err_message "$val_msg"
+            else
+              struct="$(setyval "$struct" .net '"'"$result"'"')"
+              tmp_param="`getyval "$struct" .iso`"
+              set_menu menu_iso "$tmp_param"
+            fi
+          fi
+          ;;
+        menu_iso)
+          if [ "$result" == "" ]; then
+            last_menu
+          else
+            struct="$(setyval "$struct" .iso '"'"$result"'"')"
+
+            if [ ! -f "$result" ]; then
+              set_menu menu_err_message "There is no file $result"
+            elif [[ ! "$result" =~ ^.*.iso$ ]]; then
+              set_menu menu_err_message "File $result has no .iso postfix"
+            else 
+              set_menu menu_start "Will start process\n${struct//$'\n'/\\n}\nContinue?"
+            fi
+          fi
+          ;;
+        menu_start)
+          if [ "$result" -eq 1 ]; then
+            last_menu
+          else
+            echo "Will start"
+            sleep 10
+          fi
+          ;;
+        *)
+          err "Unknown result of menu $curr_menu: $result"
+          exit 1
+          ;;
       esac
       ;;
   esac

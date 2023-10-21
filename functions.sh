@@ -33,6 +33,18 @@ function getyval() {
 	echo "${json[@]}" | yq -r "$val"
 }
 
+function setyval() {
+  if [ $# -ne 3 ]; then
+    return
+  fi
+
+  json=$1
+  key=$2
+  val=$3
+
+  echo "${json[@]}" | yq --yaml-output "$key|=$val"
+}
+
 function umount_re() {
 	vmname=$1
 	re=$2
@@ -151,26 +163,26 @@ function is_ip_in_net() {
   fi
 
 }
-# function parse_ip() {
-#   str=$1
-#   ipstr=${str%%\/[0-9]*}
-#   cidrstr=${str##*\/}
-#   ip_to_dec $ipstr
-#   dec_to_ip "$( ip_to_dec $ipstr )"
-#   get_net $ipstr $cidrstr
-#   get_net_cnt $cidrstr
-#   is_ip_in_net 192.168.0.0/24 192.168.1.255
-#
-# get_short_mask 255.255.255.0
-#   ip_gw="$( get_nth_ip $ipstr $cidrstr 1 )"
-#   ip_dhcp="$( get_nth_ip $ipstr $cidrstr 2 )"
-#   ip_first="$( get_nth_ip $ipstr $cidrstr 3 )"
-#   ip_last="$( get_nth_ip $ipstr $cidrstr -2 )"
-#   ip_mask="$( get_long_mask $cidrstr )"
-#   echo "ip_gw $ip_gw, ip_dhcp $ip_dhcp, ip_first $ip_first, ip_last $ip_last, ip_mask $ip_mask"
-#
-# }
-# parse_ip 192.168.0.148/26
+
+function validate_cidr() {
+  ip_net="$1"
+  ipstr=${ip_net%%\/[0-9]*}
+  cidrstr=${ip_net##*\/}
+
+  ip_net="$( get_net $ipstr $cidrstr )"
+  ip_gw="$( get_nth_ip $ipstr $cidrstr 1 )"
+  ip_dhcp="$( get_nth_ip $ipstr $cidrstr 2 )"
+  ip_first="$( get_nth_ip $ipstr $cidrstr 3 )"
+  ip_last="$( get_nth_ip $ipstr $cidrstr -2 )"
+  ip_mask="$( get_long_mask $cidrstr )"
+
+  if [ "$ip_net" != "$ipstr" ]; then
+  	echo "Net parameter should be CIDR net, instead we got $ipstr"
+	elif [ "$cidrstr" -gt 29 ]; then
+  	echo "Mask should be 29 and less"
+  fi
+}
+
 #NET FUNCTIONS BLOCK
 
 function get_vt() {
