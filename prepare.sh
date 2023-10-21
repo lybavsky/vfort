@@ -36,12 +36,11 @@ pkgs_to_install=(
   sm 
   evtest 
   alsa-utils
-  yq
 )
 pkgs_will_install=()
 pkgs_installed=( $(dpkg -l | awk '/^ii/{print $2}' ) )
 for pkg_to_install in ${pkgs_to_install[@]}; do
-        if [[ "${pkgs_installed[@]}" =~ \ $pkg_to_install\  ]]; then
+        if [[ ! "${pkgs_installed[@]}" =~ \ $pkg_to_install\  ]]; then
                 pkgs_will_install+=($pkg_to_install)
         fi
 done
@@ -49,7 +48,7 @@ done
 
 echo "Install packages"
 if [ "${#pkgs_will_install[@]}" -ne 0 ]; then
-        echo "Start to install packages: ${#pkgs_will_install[@]}"
+        echo "Start to install packages: ${pkgs_will_install[@]}"
         apt update
         apt install -y ${pkgs_will_install[@]}
 else
