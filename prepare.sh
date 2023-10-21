@@ -35,6 +35,7 @@ pkgs_to_install=(
   sm 
   evtest 
   alsa-utils
+  yq
 )
 pkgs_will_install=()
 pkgs_installed=( $(dpkg -l | awk '/^ii/{print $2}' ) )

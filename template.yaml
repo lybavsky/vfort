@@ -1,6 +1,5 @@
-name: common
 disk:
-  #disk size in gb
+  # disk size in gb
   size: 40
   #disk source: file or /dev/sdX
   source: /dev/sda

@@ -26,6 +26,13 @@ function getkey() {
 	echo "${json[@]}" | jq -r ".key"
 }
 
+function getyval() {
+	json=$1
+	val=$2
+
+	echo "${json[@]}" | yq -r "$val"
+}
+
 function umount_re() {
 	vmname=$1
 	re=$2
@@ -169,7 +176,7 @@ function is_ip_in_net() {
 function get_vt() {
 pth=$1
 used=( $( cat $pth/*/start.sh | awk '{print substr($4,2)}' ) )
-for i in `seq 1 10`; do
+for i in `seq 2 10`; do
   if [[ ! "${used[@]}" =~ "$i" ]]; then
     echo "$i"
     return

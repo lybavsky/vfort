@@ -46,7 +46,7 @@ if [[ "${l}" =~ value\ 0 ]]; then
                         amixer set Master 10%-
         elif [[ "${l}" =~ code\ 191 ]]; then
                         echo "Get console"
-                        chvt 3
+                        chvt 1
         fi
 
 fi
