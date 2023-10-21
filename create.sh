@@ -7,8 +7,8 @@ source ${CDIR}/functions.sh
 
 
 function vm_create() {
-  jcfg="$1"
-  clear
+  jcfg="$@"
+
   echo "Will create VM: ${jcfg[@]}"
 
 	vm_name=`getkey $jcfg`
