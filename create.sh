@@ -21,6 +21,9 @@ function vm_create() {
   memory_mb=`getval $jcfg ".memory_mb"`
   vram_mb=`getval $jcfg ".vram_mb"`
 
+  echo "memory: $memory_mb"
+  echo "vram: $vram_mb"
+
   cpus=`getval $jcfg ".cpus"`
 
 	rde_user=`getval $jcfg ".rde.user"`
@@ -128,7 +131,8 @@ function vm_create() {
 
 	echo "Configure VM memory, cpu and disk"
   $vmm --ioapic on
-  $vmm --memory $memory_mb --vram $vram_mb
+  $vmm --memory $memory_mb 
+  $vmm --vram $vram_mb
   $vmm --graphicscontroller vboxsvga
   $vmm --mouse ps2
   $vmm --usb on --usbehci on --usbxhci on

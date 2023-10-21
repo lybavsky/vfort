@@ -176,7 +176,7 @@ while true; do
             menu_vram .vram_mb
           ;;
         menu_vram)
-          process_int_msg .vram_mb "$result" "Video memory should be integer number" \
+          process_int_msg .vram_mb "$result" "Video memory should be integer number and le 256" \
             menu_cpus  .cpus
           ;;
         menu_cpus)
