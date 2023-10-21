@@ -32,7 +32,9 @@ function vm_create() {
 
   ip_net=`getval $jcfg ".net"`
 
-  echo "Validate ip address"
+  isof=`getval $jcfg ".iso"`
+
+  echo "Validate ip address ${ip_net}"
   ipstr=${ip_net%%\/[0-9]*}
   cidrstr=${ip_net##*\/}
 
@@ -68,7 +70,7 @@ function vm_create() {
 
 	echo "Will check disk size"
   if [ "$disk_source" == "file" ]; then
-  		free_space="`df -BG /srv/vm | awk '{ if (NR!=1) {print substr($4,0,length($4)-1)} }'`"
+  		free_space="`df -BG ${WDIR} | awk '{ if (NR!=1) {print substr($4,0,length($4)-1)} }'`"
   else
   		free_space="`sfdisk --list-free -q $disk_source | cut -d ' ' -f4 | sed -e '1d;s/\.[0-9]*G//g'`"
   fi
@@ -160,7 +162,7 @@ function vm_create() {
 	fi
 
 	echo "Configuring unattended login, password"
-  vboxmanage unattended install $vm_name --iso $ISOF --user $user_name --password $user_pwd  --install-additions #--start-vm=headless
+  vboxmanage unattended install $vm_name --iso $isof --user $user_name --password $user_pwd  --install-additions #--start-vm=headless
   $vmm --boot1 dvd --boot2 disk --boot3 none --boot4 none
   vboxmanage startvm $vm_name --type headless
 
@@ -185,8 +187,8 @@ function vm_create() {
 	echo "Umount unattended"
 	umount_re $vm_name "Unattended"
 
-	echo "Umount win iso $ISOF"
-	umount_re $vm_name "$ISOF"
+	echo "Umount win iso $isof"
+	umount_re $vm_name "$isof"
 
 
 
