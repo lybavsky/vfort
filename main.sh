@@ -6,6 +6,7 @@ CDIR="`dirname $( readlink -f $0 )`"
 source ${CDIR}/vars.sh
 source ${CDIR}/functions.sh
 source ${CDIR}/create.sh
+source ${CDIR}/delete.sh
 
 source ${CDIR}/menu.sh
 
