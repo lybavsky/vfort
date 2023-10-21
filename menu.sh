@@ -98,13 +98,15 @@ function menu_net() {
 }
 
 function menu_disk_source() {
-    #TODO: Need to check disk space and available disks
-    
     disks=()
     for disk in $( lsblk -p | awk '{ if ($6 == "disk" ) print $1}' ); do
-        disks+=(disk)
-        disks+=(disk)
+        free="$( sfdisk --list-free $disk | awk '{if (NR==1)print $4""substr($5,0,length($5)-1) }' )"
+        disks+=($disk)
+        disks+=("${disk}(${free})")
     done
+
+    fsfree="$( df -h $WDIR | tail -n+2 | awk '{print $4"B"}' )"
+
 
     disk_source=$(dialog \
       --title "Disk source" \
@@ -112,8 +114,7 @@ function menu_disk_source() {
       --default-item "$1" \
       --menu "Please choose disk source:" 0 0 4 \
       ${disks[@]} \
-      "disk" "Use free disk space" \
-      "file" "Use file image in filesystem" \
+      "file" "Use file image in filesystem (${fsfree})" \
       "back" "Go to previous menu" \
       "main" "Go to main menu" \
       "exit" "Exit script" \

@@ -15,6 +15,7 @@ source ${CDIR}/menu.sh
 
 
 struct="
+name: ''
 disk:
   size: 10
   source: file
@@ -22,13 +23,13 @@ memory_mb: 1024
 vram_mb: 64
 cpus: 1
 vnc:
-  pwd: vnc_password
+  pwd: ''
 rde:
   user: admin
   pwd: admin
 user:
   name: username
-  pwd: password
+  pwd: ''
 net: 192.168.0.0/24
 iso: /path_to_image.iso
 "
@@ -216,7 +217,10 @@ while true; do
           else
             echo "Will start"
 
-            res=$( vm_create 2>&1 1>&4 )
+            res=$( vm_create "$struct" 2>&1 1>&4 )
+
+            echo "res is $res"
+            sleep 10
 
           fi
           ;;
