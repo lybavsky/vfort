@@ -122,7 +122,7 @@ while true; do
       set_menu menu_create ""
       ;;
     delete)
-      echo "will open delete menu"
+      set_menu menu_delete ""
       ;;
     main)
       curr_menu="menu_main"
@@ -141,6 +141,11 @@ while true; do
       case "$curr_menu" in
         menu_err_message)
           last_menu
+          ;;
+        menu_delete)
+          clear 
+          echo "Will delete $result"
+          sleep 3
           ;;
         menu_create)
           if [ "$result" == "" ]; then
