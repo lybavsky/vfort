@@ -141,25 +141,19 @@ function vm_create() {
   
 
 
-	echo "Configuring RDE"
+	echo "Configuring VNC"
 	vboxmanage setproperty vrdeauthlibrary "VBoxAuthSimple"
 	vboxmanage modifyvm $vm_name --vrdeauthtype external
 
-  if [ "$rde_pwd" != "" ]; then
-  	pwd_hash="$( vboxmanage internalcommands passwordhash "$rde_pwd" | cut -d' ' -f3 )"
-
-		echo "pwd hash is ${pwd_hash} for $rde_user,$rde_pwd"
-    vboxmanage setextradata $vm_name "VBoxAuthSimple/users/$rde_user" $pwd_hash
+  if [ "$vnc_pwd" != "" ]; then
+  	# pwd_hash="$( vboxmanage internalcommands passwordhash "$rde_pwd" | cut -d' ' -f3 )"
+		# echo "pwd hash is ${pwd_hash} for $rde_user,$rde_pwd"
+    # vboxmanage setextradata $vm_name "VBoxAuthSimple/users/$rde_user" $pwd_hash
   	$vmm --vrde on
-	  $vmm --vrdeport $rde_port
+	  $vmm --vrdeport $vnc_port
+	  $vmm --vrdeproperty VNCPassword=$vnc_pwd 
 	else
 		$vmm --vrde off
-	fi
-
-	#Need to fix this
-	echo "Configuring VNC"
-  if [ "$vnc_pwd" != "" ]; then
-	  $vmm --vrdeproperty VNCPassword=$vnc_pwd 
 	fi
 
 	echo "Configuring unattended login, password"
@@ -168,7 +162,7 @@ function vm_create() {
   vboxmanage startvm $vm_name --type headless
 
 	myip="$( ip ro get 8.8.8.8 | awk '{print $7}' )"
-  dialog --msgbox "You need to connect via RDP ${myip}:${rde_port} as ${rde_user}:${rde_pwd} to VM and press continue to boot from iso, when windows will be installed, shutdown the vm " 10 0
+  dialog --msgbox "You need to connect via VNC ${myip}:${vnc_port} with '${vnc_pwd}' to VM and press continue to boot from iso, when windows will be installed, shutdown the vm " 10 0
 
 
 	#TODO: set resolution - should exec only on running machine
