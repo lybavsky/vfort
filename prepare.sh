@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 #Script to prepare server, install necessary packages, disable acpi and so on
 
 CDIR="`dirname $( readlink -f $0 )`"
@@ -40,7 +41,7 @@ pkgs_to_install=(
 pkgs_will_install=()
 pkgs_installed=( $(dpkg -l | awk '/^ii/{print $2}' ) )
 for pkg_to_install in ${pkgs_to_install[@]}; do
-        if [[ "$pkg_to_install" =~ " ${pkgs_installed[@]} " ]]; then
+        if [[ "${pkgs_installed[@]}" =~ \ $pkg_to_install\  ]]; then
                 pkgs_will_install+=($pkg_to_install)
         fi
 done
