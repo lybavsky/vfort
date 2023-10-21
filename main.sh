@@ -22,15 +22,15 @@ memory_mb: 1024
 vram_mb: 64
 cpus: 1
 vnc:
-  pwd: 12345678
+  pwd: vnc_password
 rde:
   user: admin
   pwd: admin
 user:
-  name: user
-  pwd: 1234567890
-net: 192.168.0.0/25
-iso: /win.iso
+  name: username
+  pwd: password
+net: 192.168.0.0/24
+iso: /path_to_image.iso
 "
 
 if [ $# == 1 ]; then
