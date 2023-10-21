@@ -147,6 +147,9 @@ while true; do
           elif [[ ! "$result" =~ ^[0-9a-zA-Z]*$ ]]; then 
             set_menu menu_err_message "VM name should contain only latin symbols and numbers"
           else
+            struct="$(setyval "$struct" .name '"'"$result"'"')"
+
+
             tmp_param="`getyval "$struct" .disk.size`"
             set_menu menu_disk_size "$tmp_param"
           fi
