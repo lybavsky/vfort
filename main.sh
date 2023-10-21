@@ -14,7 +14,24 @@ source ${CDIR}/menu.sh
 # [ "$EUID" -ne 0 ] && err "Script sould be started as root"
 
 
-struct=""
+struct="
+disk:
+  size: 10
+  source: file
+memory_mb: 1024
+vram_mb: 64
+cpus: 1
+vnc:
+  pwd: 12345678
+rde:
+  user: admin
+  pwd: admin
+user:
+  name: user
+  pwd: 1234567890
+net: 192.168.0.0/25
+iso: /win.iso
+"
 
 if [ $# == 1 ]; then
   echo "Passed parameter: $1"
