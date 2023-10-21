@@ -143,9 +143,7 @@ while true; do
           last_menu
           ;;
         menu_delete)
-          clear 
-          echo "Will delete $result"
-          sleep 3
+          vm_delete $result
           ;;
         menu_create)
           if [ "$result" == "" ]; then

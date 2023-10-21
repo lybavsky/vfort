@@ -7,6 +7,7 @@ source ${CDIR}/functions.sh
 
 function vm_delete() {
   vm_name="$1"
+  clear
   echo "VM to delete: $vm_name"
 
   vmstate="$(vm_state $vm_name)"
