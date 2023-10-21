@@ -7,6 +7,7 @@ disk:
   source: /dev/sda
   
 memory_mb: 4096
+#should be le 256
 vram_mb: 256
 
 cpus: 2
