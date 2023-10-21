@@ -15,11 +15,6 @@ cpus: 2
 vnc:
   pwd: 1234567890
 
-#will used while installing
-rde:
-  user: admin
-  pwd: admin
-
 user:
   name: lybavsky
   pwd: 1234567890

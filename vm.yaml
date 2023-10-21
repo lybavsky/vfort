@@ -14,10 +14,6 @@ vms:
     vnc:
       pwd: 1234567890
 
-    rde:
-      user: admin
-      pwd: admin
-
     user:
       name: lybavsky
       pwd: 1234567890
@@ -38,10 +34,6 @@ vms:
 
     vnc:
       pwd: 1234567890
-
-    rde:
-      user: admin
-      pwd: admin
 
     user:
       name: lybavsky
