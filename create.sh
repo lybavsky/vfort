@@ -9,9 +9,10 @@ source ${CDIR}/functions.sh
 function vm_create() {
   jcfg="$@"
 
+  clear
   echo "Will create VM: ${jcfg[@]}"
 
-	vm_name=`getkey $jcfg`
+	vm_name=`getval $jcfg .name`
 	echo "Processing VM $vm_name"
 
   disk_source=`getval $jcfg ".disk.source"`

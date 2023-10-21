@@ -22,13 +22,7 @@ function getval() {
 	json=$1
 	val=$2
 
-	echo "${json[@]}" | jq -r ".value$val"
-}
-
-function getkey() {
-	json=$1
-
-	echo "${json[@]}" | jq -r ".key"
+	echo "${json[@]}" | jq -r "$val"
 }
 
 function getyval() {
