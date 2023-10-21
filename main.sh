@@ -143,8 +143,10 @@ while true; do
           last_menu
           ;;
         menu_delete)
-          if [ "$result" -ne "" ]; then
+          if [ "$result" != "" ]; then
             vm_delete $result
+          else 
+            last_menu
           fi
           ;;
         menu_create)
