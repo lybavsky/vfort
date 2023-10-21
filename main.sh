@@ -235,6 +235,7 @@ while true; do
             if [ "$req" == "0" ]; then
               menu_err_message "VM $vm_name was created"
             else
+              #TODO: Somewhere here is a problems - start.sh ....
               menu_err_message "VM $vm_name had errors while created $res, will be deleted"
               vm_delete $vm_name
             fi

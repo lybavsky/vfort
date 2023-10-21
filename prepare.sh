@@ -37,6 +37,7 @@ pkgs_to_install=(
   evtest 
   alsa-utils
   htop
+  tmux
 )
 pkgs_will_install=()
 pkgs_installed=( $(dpkg -l | awk '/^ii/{print $2}' ) )
