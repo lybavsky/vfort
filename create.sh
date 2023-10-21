@@ -157,7 +157,8 @@ function vm_create() {
 	fi
 
 	echo "Configuring unattended login, password"
-  vboxmanage unattended install $vm_name --iso $isof --user $user_name --password $user_pwd  --install-additions #--start-vm=headless
+  vboxmanage unattended install $vm_name --iso $isof --user $user_name --password $user_pwd  --install-additions \ #--start-vm=headless 
+    --post-install-command="shutdown /s || shutdown -P now"
   $vmm --boot1 dvd --boot2 disk --boot3 none --boot4 none
   vboxmanage startvm $vm_name --type headless
 
