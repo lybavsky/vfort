@@ -46,9 +46,9 @@ function vm_create() {
   ip_mask="$( get_long_mask $cidrstr )"
 
   if [ "$ip_net" != "$ipstr" ]; then
-  	err "Net parameter should be net addressm instead got $ipstr"
+  	nferr "Net parameter should be net addressm instead got $ipstr" && return 1
 	elif [ "$cidrstr" -gt 29 ]; then
-  	err "Mask should be 29 and less"
+  	nferr "Mask should be 29 and less" && return 1
   fi
 
 	vmm="vboxmanage modifyvm $vm_name"
@@ -56,7 +56,7 @@ function vm_create() {
 	vt_num="$( get_vt $WDIR )"
 
 	if [ $vt_num -eq "-1" ]; then
-		err "Not enough free VT"
+		nferr "Not enough free VT" && return 1
 	fi
 
 
@@ -76,7 +76,7 @@ function vm_create() {
   fi
   echo "free space: $free_space"
   if [ $free_space -le $disk_size ]; then
-  	err "Not enough disk space for $vm_name: requested $disk_size, available only $free_space"
+  	nferr "Not enough disk space for $vm_name: requested $disk_size, available only $free_space" && return 1
   fi
 
   echo "Will create disk"

@@ -6,6 +6,11 @@ catch() {
   exit 0
 }
 
+function nferr() {
+	msg="$@"
+	echo "Error: $msg" >&2
+}
+
 function err() {
 	msg="$@"
 	echo "Error: $msg"
