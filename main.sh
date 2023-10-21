@@ -217,7 +217,7 @@ while true; do
           else
             echo "Will start"
 
-            res=$( vm_create "$struct" 2>&1 1>&4 )
+            res=$( vm_create "$( echo "${struct[@]}" | yq -c )" 2>&1 1>&4 )
 
             echo "res is $res"
             sleep 10
