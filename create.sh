@@ -245,4 +245,5 @@ function vm_create() {
 	VBoxManage setextradata global GUI/MaxGuestResolution 1366x786
 
 	systemctl start win@${vm_name}.service
+	#TODO: do something with net - ip_forward, masquerade, ...
 }
