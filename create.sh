@@ -35,6 +35,7 @@ function vm_create() {
 
   isof=`getval $jcfg ".iso"`
 
+
   echo "Validate ip address ${ip_net}"
   ipstr=${ip_net%%\/[0-9]*}
   cidrstr=${ip_net##*\/}
@@ -156,9 +157,8 @@ function vm_create() {
 		$vmm --vrde off
 	fi
 
-	echo "Configuring unattended login, password"
-  vboxmanage unattended install $vm_name --iso $isof --user $user_name --password $user_pwd  --install-additions \ #--start-vm=headless 
-    --post-install-command="shutdown /s || shutdown -P now"
+	echo "Configuring unattended login, password with iso $isof"
+  vboxmanage unattended install $vm_name --iso $isof --user $user_name --password $user_pwd --install-additions --post-install-command="shutdown /s || shutdown -P now"
   $vmm --boot1 dvd --boot2 disk --boot3 none --boot4 none
   vboxmanage startvm $vm_name --type headless
 

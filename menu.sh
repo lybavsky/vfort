@@ -144,7 +144,7 @@ function menu_start() {
 
 function menu_delete() {
     if [ "$( ls -1 $WDIR/ | wc -l )" -eq 0 ]; then
-        menu_err_message "No installed VM, will wait"
+        menu_err_message "No installed VM, can not continue"
     else
         for vm in "$WDIR"/*; do
           vmn="${vm##*/}"

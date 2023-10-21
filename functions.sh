@@ -202,7 +202,7 @@ function vm_state() {
   vboxmanage showvminfo $1 | awk '/^State:/{ print gensub(/State: *(.*) \(.*$/,"\\1","g",$0) }'
 }
 function vm_running() {
-  if [ "$(vm_state $1 )" == "powered off" ]; then
+  if [ "$(vm_state $1 )" == "powered off" -o  "$(vm_state $1 )" == "aborted" ]; then
     echo 0
   else
     echo 1
