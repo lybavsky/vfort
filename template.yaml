@@ -1,3 +1,5 @@
+name: ''
+
 disk:
   # disk size in gb
   size: 40
@@ -24,5 +26,4 @@ user:
 
 net: 192.168.0.0/25
 
-iso: /Users/lybavsky/Downloads/mini.iso
-# iso: /win.iso
+iso: /win.iso
