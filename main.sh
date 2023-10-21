@@ -230,8 +230,18 @@ while true; do
 
             res=$( vm_create "$( echo "${struct[@]}" | yq -c )" 2>&1 1>&4 )
 
-            echo "res is $res"
-            sleep 10
+            vm_name="`getyval "$struct" .name`"
+            if [ "$req" == "0" ]; then
+              menu_err_message "VM $vm_name was created"
+            else
+              menu_err_message "VM $vm_name had errors while created $res, will be deleted"
+              vm_delete $vm_name
+            fi
+
+            curr_menu="menu_main"
+            curr_params=""
+            prev_menu=()
+            continue
 
           fi
           ;;
