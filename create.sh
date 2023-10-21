@@ -6,8 +6,10 @@ source ${CDIR}/vars.sh
 source ${CDIR}/functions.sh
 
 
-function create() {
+function vm_create() {
+  data="$1"
+  jcfg="$( echo "${data[@]}" | yq -c )"
   clear
-  echo "Will create VM: $0"
+  echo "Will create VM: ${jcfg[@]}"
   sleep 2
 }

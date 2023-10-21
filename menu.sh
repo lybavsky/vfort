@@ -99,11 +99,19 @@ function menu_net() {
 
 function menu_disk_source() {
     #TODO: Need to check disk space and available disks
+    
+    disks=()
+    for disk in $( lsblk -p | awk '{ if ($6 == "disk" ) print $1}' ); do
+        disks+=(disk)
+        disks+=(disk)
+    done
+
     disk_source=$(dialog \
       --title "Disk source" \
       --no-cancel \
       --default-item "$1" \
       --menu "Please choose disk source:" 0 0 4 \
+      ${disks[@]} \
       "disk" "Use free disk space" \
       "file" "Use file image in filesystem" \
       "back" "Go to previous menu" \

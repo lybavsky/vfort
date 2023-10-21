@@ -215,7 +215,9 @@ while true; do
             last_menu
           else
             echo "Will start"
-            sleep 10
+
+            res=$( vm_create 2>&1 1>&4 )
+
           fi
           ;;
         *)
