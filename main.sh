@@ -152,10 +152,10 @@ while true; do
           ;;
         menu_disk_size)
           process_int_msg .disk.size "$result"  "Disk size should be integer number" \
-            menu_disk_type .disk.type
+            menu_disk_source .disk.source
           ;;
-        menu_disk_type)
-          struct="$(setyval "$struct" .disk.type '"'"$result"'"')"
+        menu_disk_source)
+          struct="$(setyval "$struct" .disk.source '"'"$result"'"')"
 
           set_menu menu_memory "`getyval "$struct" .memory_mb`"
           ;;

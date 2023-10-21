@@ -97,13 +97,13 @@ function menu_net() {
     menu_inputbox "Network address" "Please set network in form x.x.x.x/x" "$@"
 }
 
-function menu_disk_type() {
+function menu_disk_source() {
     #TODO: Need to check disk space and available disks
-    disk_type=$(dialog \
-      --title "Disk type" \
+    disk_source=$(dialog \
+      --title "Disk source" \
       --no-cancel \
       --default-item "$1" \
-      --menu "Please choose disk type:" 0 0 4 \
+      --menu "Please choose disk source:" 0 0 4 \
       "disk" "Use free disk space" \
       "file" "Use file image in filesystem" \
       "back" "Go to previous menu" \
@@ -111,7 +111,7 @@ function menu_disk_type() {
       "exit" "Exit script" \
       2>&1 1>&4 )
 
-    echo $disk_type
+    echo $disk_source
 }
 
 function menu_iso() {
