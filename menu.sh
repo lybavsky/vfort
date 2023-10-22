@@ -143,25 +143,21 @@ function menu_start() {
 }
 
 function menu_delete() {
-    if [ "$( ls -1 $WDIR/ | wc -l )" -eq 0 ]; then
-        menu_err_message "No installed VM, can not continue"
-    else
-        for vm in "$WDIR"/*; do
-          vmn="${vm##*/}"
-          items+=("${vmn}" "${vmn}")
-        done
-        
-        vm_name=$(dialog \
-          --title "Delete VM" \
-          --clear \
-          --no-cancel \
-          --menu "Please select VM to delete:" 0 0 4 \
-          ${items[@]} \
-          "back" "Go to previous menu" \
-          "main" "Go to main menu" \
-          "exit" "Exit script" \
-          2>&1 1>&4 )
-        
-        echo "$vm_name"
-    fi
+    for vm in "$WDIR"/*; do
+      vmn="${vm##*/}"
+      items+=("${vmn}" "${vmn}")
+    done
+    
+    vm_name=$(dialog \
+      --title "Delete VM" \
+      --clear \
+      --no-cancel \
+      --menu "Please select VM to delete:" 0 0 4 \
+      ${items[@]} \
+      "back" "Go to previous menu" \
+      "main" "Go to main menu" \
+      "exit" "Exit script" \
+      2>&1 1>&4 )
+    
+    echo "$vm_name"
 }

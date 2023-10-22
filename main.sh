@@ -122,7 +122,11 @@ while true; do
       set_menu menu_create ""
       ;;
     delete)
-      set_menu menu_delete ""
+      if [ "$( ls -1 $WDIR/ | wc -l )" -eq 0 ]; then
+        set_menu menu_err_message "No installed VMs, can not do nothing"
+      else
+        set_menu menu_delete ""
+      fi
       ;;
     main)
       curr_menu="menu_main"
