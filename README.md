@@ -2,19 +2,18 @@
 
 Assume that ubuntu installed on EFI
 
+1. bash prepare.sh
+2. bash main.sh template.yaml or bash main.sh
+
 TODO: 
-- dialog if use default config 
 - get all used vty list 
 - create switch wm service
 - set vol service
 - show popup - name of vm
 - auto set graphics
-- delete vm functional
 - put vboxnet to some netns
 - think how to connect vboxnet to vpn services
 - dialogs to put usb filter/allow all usb to some vm
 - fix vnc unavailability
-- disable vnc if no password provided
 - remap keys
-- dont touch existing vm
 - sm messages dont work as expected
