@@ -1,0 +1,13 @@
+[Unit]
+Description=Start and shutdown win
+Requires=systemd-modules-load.service
+Wants=network.target multi-user.target
+After=systemd-modules-load.service network.target multi-user.target
+
+[Service]
+Type=simple
+ExecStart=bash -c WDIR/%i/start.sh
+ExecStop=/usr/bin/VBoxManage controlvm %i acpipowerbutton
+
+[Install]
+WantedBy=multi-user.target
