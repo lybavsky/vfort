@@ -233,8 +233,10 @@ while true; do
           else
             echo "Will start"
 
+            set +e
             res=$( vm_create "$( echo "${struct[@]}" | yq -c )" 2>&1 1>&4 )
             rc=$?
+            set -e
 
             vm_name="`getyval "$struct" .name`"
             if [ "$rc" -eq 0 ]; then
