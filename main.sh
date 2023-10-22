@@ -230,12 +230,12 @@ while true; do
             echo "Will start"
 
             res=$( vm_create "$( echo "${struct[@]}" | yq -c )" 2>&1 1>&4 )
+            rc=$?
 
             vm_name="`getyval "$struct" .name`"
-            if [ "$req" == "0" ]; then
+            if [ "$rc" -eq 0 ]; then
               menu_err_message "VM $vm_name was created"
             else
-              #TODO: Somewhere here is a problems - start.sh ....
               menu_err_message "VM $vm_name had errors while created $res, will be deleted"
               vm_delete $vm_name
             fi
