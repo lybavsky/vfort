@@ -56,6 +56,9 @@ function vm_create() {
   	nferr "Mask should be 29 and less" && return 1
   fi
 
+  #TODO: deleteme
+  return 1
+
 	vmm="vboxmanage modifyvm $vm_name"
 
 	vt_num="$( get_vt $WDIR )"
