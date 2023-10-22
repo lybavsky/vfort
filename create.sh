@@ -164,7 +164,7 @@ function vm_create() {
 	echo "Configuring unattended login, password with iso $isof"
   vboxmanage unattended install $vm_name --iso $isof --user $user_name --password $user_pwd --install-additions --post-install-command="shutdown /s || shutdown -P now"
   $vmm --boot1 dvd --boot2 disk --boot3 none --boot4 none
-  vboxmanage startvm $vm_name --type headless 2>&1
+  vboxmanage startvm $vm_name --type headless
 
 	myip="$( ip ro get 8.8.8.8 | awk '{print $7}' )"
   dialog --msgbox "You need to connect via VNC ${myip}:${vnc_port} with '${vnc_pwd}' to VM and press continue to boot from iso, when windows will be installed, shutdown the vm " 10 0
@@ -235,7 +235,7 @@ function vm_create() {
 	echo "/usr/bin/vboxsdl --startvm ${vm_name} --fullscreen --vrdp ${vnc_port} --nofstoggle --nohostkey -fullscreenresize -noresize --termacpi " > $VDIR/vbox.sh
 	chmod +x $VDIR/vbox.sh
 	
-	systemctl enable win@${vm_name}.service 2>&1
+	systemctl enable win@${vm_name}.service 
 
 	# TODO: need to set modehint
 	# vboxmanage controlvm ${vm_name} setvideomodehint 1366 768 32
