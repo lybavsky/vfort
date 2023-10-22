@@ -38,6 +38,7 @@ pkgs_to_install=(
   alsa-utils
   htop
   tmux
+  x11-utils
 )
 pkgs_will_install=()
 pkgs_installed=( $(dpkg -l | awk '/^ii/{print $2}' ) )
