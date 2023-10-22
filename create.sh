@@ -241,8 +241,9 @@ function vm_create() {
 	# vboxmanage controlvm ${vm_name} setvideomodehint 1366 768 32
 
 	echo "Set extradata for video mode"
-  VBoxManage setextradata ${vm_name} "CustomVideoMode1" "1366x786x24"
+  VBoxManage setextradata ${vm_name} "CustomVideoMode1" "1366x786x32"
 	VBoxManage setextradata global GUI/MaxGuestResolution 1366x786
+	vboxmanage controlvm ${vm_name} setvideomodehint 1366 768 32
 
 	systemctl start win@${vm_name}.service
 	#TODO: do something with net - ip_forward, masquerade, ...
